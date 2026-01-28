@@ -61,10 +61,17 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         script: |
+          # Ensure AWS CLI is installed (Minimal check)
+          if ! command -v aws &> /dev/null; then
+            echo "AWS CLI not found. Installing..."
+            sudo apt-get update && sudo apt-get install -y awscli
+          fi
+
           # Login to ECR on EC2
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
           
           # Navigate to app directory
+          mkdir -p /home/ubuntu/viewora
           cd /home/ubuntu/viewora
 
           # Create .env file from secret
