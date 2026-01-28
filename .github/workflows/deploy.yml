@@ -62,11 +62,15 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION
         script: |
-          # Ensure AWS CLI is installed (Non-interactive)
+          # Ensure AWS CLI v2 is installed (Official v2 installer)
           if ! command -v aws &> /dev/null; then
-            echo "AWS CLI not found. Installing..."
+            echo "AWS CLI not found. Installing AWS CLI v2..."
             sudo apt-get update -y
-            sudo apt-get install -y awscli
+            sudo apt-get install -y unzip curl
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -o awscliv2.zip
+            sudo ./aws/install --update
+            rm -rf aws awscliv2.zip
           fi
 
           # Setup AWS Credentials on server temporarily for ECR
