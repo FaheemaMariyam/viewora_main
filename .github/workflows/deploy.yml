@@ -88,6 +88,9 @@ jobs:
           # Create .env file from secret
           echo "${{ secrets.PROD_ENV_FILE }}" > .env
           
+          # Clean up old docker data to free up space
+          docker system prune -af --volumes
+
           # Stop old containers
           docker-compose -f docker-compose.prod.yml down || true
 
