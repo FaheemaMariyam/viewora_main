@@ -1,0 +1,24 @@
+# Horizontal Pod Autoscaler (HPA) Configuration
+# Purpose: Automatically scales the number of AI service pods based on CPU/memory usage
+# - If CPU usage goes above 70%, it creates more pods (up to 5 max)
+# - If usage drops, it removes pods (down to 2 min)
+# - This makes your AI service auto-scale based on demand
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: ai-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ai-service
+  minReplicas: 2
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70

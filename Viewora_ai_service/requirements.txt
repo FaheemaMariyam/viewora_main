@@ -1,0 +1,11 @@
+fastapi
+uvicorn
+langchain-community
+langchain-huggingface
+faiss-cpu
+google-genai
+python-dotenv
+requests
+sentence-transformers==2.7.0
+boto3
+psycopg2-binary

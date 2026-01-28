@@ -1,0 +1,18 @@
+# Kubernetes Service Configuration
+# Purpose: Creates a network endpoint to access the AI service pods
+# - Acts as a load balancer that distributes traffic across all AI service pods
+# - Exposes the AI service on port 80, forwarding to container port 8001
+# - Makes the AI service accessible to other services (frontend/backend)
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: ai-service
+spec:
+  selector:
+    app: ai-service
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8001
+  type: ClusterIP

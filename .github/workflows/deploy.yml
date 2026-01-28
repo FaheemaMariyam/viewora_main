@@ -1,0 +1,73 @@
+name: Deploy to AWS EC2
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  AWS_REGION: us-east-1
+  ECR_BACKEND_REPO: viewora-backend
+  ECR_AI_REPO: viewora-ai-service
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push Backend image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: latest
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG ./Viewora_backend
+        docker push $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG
+
+    - name: Build, tag, and push AI Service image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: latest
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_AI_REPO:$IMAGE_TAG ./Viewora_ai_service
+        docker push $ECR_REGISTRY/$ECR_AI_REPO:$IMAGE_TAG
+
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          # Login to ECR on EC2
+          aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
+          
+          # Navigate to app directory (create if not exists)
+          mkdir -p /home/ubuntu/viewora
+          cd /home/ubuntu/viewora
+
+          # Create .env file (You should ideally use a secrets manager or copy existing)
+          # For now, we assume .env exists or we pull it securely. 
+          # PRO TIP: You can inject secrets here via echo "${{ secrets.PROD_ENV_FILE }}" > .env
+          
+          # Stop old containers
+          docker-compose -f docker-compose.prod.yml down || true
+
+          # Pull new images
+          docker-compose -f docker-compose.prod.yml pull
+
+          # Start new containers
+          docker-compose -f docker-compose.prod.yml up -d

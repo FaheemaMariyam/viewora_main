@@ -1,0 +1,13 @@
+from django.apps import AppConfig
+
+
+class InterestsConfig(AppConfig):
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "interests"
+
+    def ready(self):
+        import interests.signals
+
+        from .scheduler import setup_periodic_tasks
+
+        setup_periodic_tasks()

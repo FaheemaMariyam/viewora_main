@@ -1,0 +1,101 @@
+version: '3.8'
+
+services:
+  # Reverse Proxy (Handles HTTPS & Static Files)
+  # Recommended: Caddy or Nginx. Using Caddy for easiest auto-HTTPS.
+  caddy:
+    image: caddy:2
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    depends_on:
+      - backend
+
+  postgres:
+    image: postgres:15
+    container_name: viewora_postgres
+    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7
+    container_name: viewora_redis
+    restart: always
+    volumes:
+      - redis_data:/data
+
+  backend:
+    # IMAGE PLACEHOLDER: The CI/CD pipeline will set the correct image URI here
+    # Local dev uses 'build', Production uses 'image'
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
+    container_name: viewora_backend
+    restart: always
+    command: gunicorn viewora_project.wsgi:application --bind 0.0.0.0:8000
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    env_file:
+      - .env
+    volumes:
+      - media_data:/app/media
+      - static_data:/app/static
+
+  celery:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
+    container_name: viewora_celery
+    restart: always
+    command: celery -A viewora_project worker -l info
+    depends_on:
+      - backend
+      - redis
+    env_file:
+      - .env
+    volumes:
+      - media_data:/app/media
+
+  celery_beat:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
+    container_name: viewora_celery_beat
+    restart: always
+    command: celery -A viewora_project beat -l info
+    depends_on:
+      - redis
+      - backend
+    env_file:
+      - .env
+
+  ai_service:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-ai-service:latest
+    container_name: viewora_ai_service
+    restart: always
+    env_file:
+      - .env
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  redis_data:
+  media_data:
+  static_data:
+  caddy_data:
+  caddy_config:

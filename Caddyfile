@@ -1,0 +1,11 @@
+# Put your domain here (e.g., api.viewora.com)
+:80 {
+    # Reverse proxy to Django Backend
+    reverse_proxy /api/* backend:8000
+    reverse_proxy /admin/* backend:8000
+    reverse_proxy /static/* backend:8000
+    reverse_proxy /media/* backend:8000
+
+    # Serve generic files or frontend if needed, but Frontend is on Vercel.
+    # So we mainly just proxy API calls.
+}
