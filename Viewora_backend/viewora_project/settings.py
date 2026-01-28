@@ -47,7 +47,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "true"
 
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1").split(",")
 
 
 # Application definition
@@ -88,9 +88,7 @@ MIDDLEWARE = [
 ]
 # frontend to Django backend, Allows cookies (JWT) to be sent
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
-]
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173").split(",")
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = [  # Allows JWT headers if needed,Allows JSON POST requests
@@ -98,9 +96,7 @@ CORS_ALLOW_HEADERS = [  # Allows JWT headers if needed,Allows JSON POST requests
     "content-type",
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:5173",
-]
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:5173").split(",")
 
 ROOT_URLCONF = "viewora_project.urls"
 

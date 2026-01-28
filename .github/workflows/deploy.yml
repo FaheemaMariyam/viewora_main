@@ -45,6 +45,15 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_AI_REPO:$IMAGE_TAG ./Viewora_ai_service
         docker push $ECR_REGISTRY/$ECR_AI_REPO:$IMAGE_TAG
 
+    - name: Copy config files to EC2
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        source: "docker-compose.prod.yml,Caddyfile"
+        target: "/home/ubuntu/viewora"
+
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.10
       with:
@@ -55,18 +64,18 @@ jobs:
           # Login to ECR on EC2
           aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
           
-          # Navigate to app directory (create if not exists)
-          mkdir -p /home/ubuntu/viewora
+          # Navigate to app directory
           cd /home/ubuntu/viewora
 
-          # Create .env file (You should ideally use a secrets manager or copy existing)
-          # For now, we assume .env exists or we pull it securely. 
-          # PRO TIP: You can inject secrets here via echo "${{ secrets.PROD_ENV_FILE }}" > .env
+          # Create .env file from secret
+          echo "${{ secrets.PROD_ENV_FILE }}" > .env
           
           # Stop old containers
           docker-compose -f docker-compose.prod.yml down || true
 
           # Pull new images
+          export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
+          export AWS_REGION=${{ env.AWS_REGION }}
           docker-compose -f docker-compose.prod.yml pull
 
           # Start new containers
