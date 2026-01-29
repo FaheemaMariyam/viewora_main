@@ -38,44 +38,57 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG
 
 # AI Service image is managed separately for the k3s cluster.
-    - name: Copy config files to EC2
+    - name: Create local Firebase credentials file
+      run: |
+        mkdir -p ./firebase_temp
+        echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > ./firebase_temp/firebase.json
+
+    - name: Prepare EC2 directory
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          mkdir -p /home/ubuntu/viewora/firebase
+          sudo chown -R ubuntu:ubuntu /home/ubuntu/viewora
+
+    - name: Copy config files & secrets to EC2
       uses: appleboy/scp-action@v0.1.4
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
-        source: "docker-compose.prod.yml,Caddyfile"
+        source: "docker-compose.prod.yml,Caddyfile,firebase_temp/firebase.json"
         target: "/home/ubuntu/viewora"
+        strip_components: 1
         timeout: 20m
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.10
-      env:
-        FIREBASE_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
-        envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION,FIREBASE_JSON
+        envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION
         command_timeout: 30m
         debug: true
         script: |
-          # Ensure directory exists and has correct permissions
-          mkdir -p /home/ubuntu/viewora
           cd /home/ubuntu/viewora
 
-          # Ensure AWS CLI v2 is installed (Official v2 installer)
+          # Move firebase.json to correct location if needed (if strip_components handled it differently)
+          mkdir -p firebase
+          [ -f firebase.json ] && mv firebase.json firebase/firebase.json || true
+
+          # Ensure AWS CLI v2 is installed
           if ! command -v aws &> /dev/null; then
-            echo "AWS CLI not found. Installing AWS CLI v2..."
-            sudo apt-get update -y
-            sudo apt-get install -y unzip curl
+            echo "Installing AWS CLI v2..."
+            sudo apt-get update -y && sudo apt-get install -y unzip curl
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip -o awscliv2.zip
-            sudo ./aws/install --update
-            rm -rf aws awscliv2.zip
+            unzip -o awscliv2.zip && sudo ./aws/install --update && rm -rf aws awscliv2.zip
           fi
 
-          # Setup AWS Credentials on server temporarily for ECR
+          # Setup AWS Credentials
           export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
           export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           export AWS_DEFAULT_REGION=${{ env.AWS_REGION }}
@@ -83,31 +96,18 @@ jobs:
           # Login to ECR
           aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
           
-          # Navigate to app directory
-          mkdir -p /home/ubuntu/viewora
-          cd /home/ubuntu/viewora
-
-          # Create .env file from secret
+          # Create .env file
           echo "${{ secrets.PROD_ENV_FILE }}" > .env
 
-          # Create Firebase Credentials securely from ENV variable
-          mkdir -p /home/ubuntu/viewora/firebase
-          echo "$FIREBASE_JSON" > /home/ubuntu/viewora/firebase/firebase.json
-          chmod 600 /home/ubuntu/viewora/firebase/firebase.json
-          
-          # Stop old containers first so images are no longer "in use"
+          # Stop old containers
           docker-compose -f docker-compose.prod.yml down || true
           
-          # Clean up everything to free up maximum space
+          # Clean up
           docker system prune -af --volumes
-
-          # Check disk space to confirm cleanup
           df -h
           
-          # Pull new images
+          # Pull and Start
           export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
           export AWS_REGION=${{ env.AWS_REGION }}
           docker-compose -f docker-compose.prod.yml pull
-
-          # Start new containers
           docker-compose -f docker-compose.prod.yml up -d
