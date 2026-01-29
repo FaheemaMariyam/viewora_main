@@ -88,12 +88,15 @@ jobs:
           # Create .env file from secret
           echo "${{ secrets.PROD_ENV_FILE }}" > .env
           
-          # Clean up old docker data to free up space
+          # Stop old containers first so images are no longer "in use"
+          docker-compose -f docker-compose.prod.yml down || true
+          
+          # Clean up everything to free up maximum space
           docker system prune -af --volumes
 
-          # Stop old containers
-          docker-compose -f docker-compose.prod.yml down || true
-
+          # Check disk space to confirm cleanup
+          df -h
+          
           # Pull new images
           export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
           export AWS_REGION=${{ env.AWS_REGION }}
