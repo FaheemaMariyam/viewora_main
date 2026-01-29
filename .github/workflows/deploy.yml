@@ -50,11 +50,13 @@ jobs:
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.10
+      env:
+        FIREBASE_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
       with:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
-        envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION
+        envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION,FIREBASE_JSON
         command_timeout: 30m
         debug: true
         script: |
@@ -88,9 +90,9 @@ jobs:
           # Create .env file from secret
           echo "${{ secrets.PROD_ENV_FILE }}" > .env
 
-          # Create Firebase Credentials from secret
+          # Create Firebase Credentials securely from ENV variable
           mkdir -p /home/ubuntu/viewora/firebase
-          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > /home/ubuntu/viewora/firebase/firebase.json
+          echo "$FIREBASE_JSON" > /home/ubuntu/viewora/firebase/firebase.json
           chmod 600 /home/ubuntu/viewora/firebase/firebase.json
           
           # Stop old containers first so images are no longer "in use"
