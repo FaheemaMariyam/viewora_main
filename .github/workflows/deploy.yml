@@ -38,19 +38,6 @@ jobs:
         docker push $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG
 
 # AI Service image is managed separately for the k3s cluster.
-# Skipping build here to save disk space and time.
-
-
-    - name: Prepare EC2 directory
-      uses: appleboy/ssh-action@v0.1.10
-      with:
-        host: ${{ secrets.EC2_HOST }}
-        username: ubuntu
-        key: ${{ secrets.EC2_SSH_KEY }}
-        script: |
-          mkdir -p /home/ubuntu/viewora
-          sudo chown -R ubuntu:ubuntu /home/ubuntu/viewora
-
     - name: Copy config files to EC2
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -59,7 +46,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         source: "docker-compose.prod.yml,Caddyfile"
         target: "/home/ubuntu/viewora"
-        timeout: 10m
+        timeout: 20m
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.10
@@ -69,7 +56,12 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION
         command_timeout: 30m
+        debug: true
         script: |
+          # Ensure directory exists and has correct permissions
+          mkdir -p /home/ubuntu/viewora
+          cd /home/ubuntu/viewora
+
           # Ensure AWS CLI v2 is installed (Official v2 installer)
           if ! command -v aws &> /dev/null; then
             echo "AWS CLI not found. Installing AWS CLI v2..."
