@@ -42,9 +42,10 @@ jobs:
       env:
         FIREBASE_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
       run: |
-        python3 -c "import os; f = open('firebase.json', 'w'); f.write(os.environ.get('FIREBASE_JSON', '').strip()); f.close()"
+        python3 -c "import os; val = os.environ.get('FIREBASE_JSON', ''); print(f'Diagnostic: Secret length is {len(val)} characters'); f = open('firebase.json', 'w'); f.write(val.strip()); f.close()"
         # Verify JSON is valid before proceeding
-        python3 -c "import json; json.load(open('firebase.json'))" || (echo "ERROR: The FIREBASE_SERVICE_ACCOUNT_JSON secret is not valid JSON! Please check the content in GitHub Secrets." && exit 1)
+        if [ ! -s firebase.json ]; then echo "ERROR: The file firebase.json is EMPTY. Your GitHub Secret 'FIREBASE_SERVICE_ACCOUNT_JSON' might be missing, named incorrectly, or empty." && exit 1; fi
+        python3 -c "import json; json.load(open('firebase.json'))" || (echo "ERROR: The secret content is not valid JSON! Please ensure you pasted the ENTIRE content of your Firebase .json file into the secret." && exit 1)
 
     - name: Prepare EC2 directory
       uses: appleboy/ssh-action@v0.1.10
