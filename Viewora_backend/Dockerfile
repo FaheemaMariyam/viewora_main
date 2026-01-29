@@ -1,21 +1,27 @@
-#Start with a ready-made computer that already has Python 3.11 installed
-FROM python:3.11-slim  
-#Prevents Python from creating .pyc files
+FROM python:3.11-slim
+
+# Prevents Python from creating .pyc files
 ENV PYTHONDONTWRITEBYTECODE=1
-#Makes logs appear immediately in terminal
+# Makes logs appear immediately in terminal
 ENV PYTHONUNBUFFERED=1
-#All work will happen inside /app folder
+
 WORKDIR /app
-#Copies requirements.txt from the PC to container
+
+# Install system dependencies for PostgreSQL and building packages
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
 COPY requirements.txt .
-
 RUN pip install --upgrade pip \
-    && pip install -r requirements.txt
+    && pip install --no-cache-dir -r requirements.txt
 
-    #Copies entire project code into container
+# Copy the rest of the code
 COPY . .
 
 EXPOSE 8000
 
-#Default command when container starts
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+# Default command (will be overridden by docker-compose in production)
+CMD ["gunicorn", "viewora_project.wsgi:application", "--bind", "0.0.0.0:8000"]
