@@ -37,13 +37,9 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG ./Viewora_backend
         docker push $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG
 
-    - name: Build, tag, and push AI Service image
-      env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: latest
-      run: |
-        docker build -t $ECR_REGISTRY/$ECR_AI_REPO:$IMAGE_TAG ./Viewora_ai_service
-        docker push $ECR_REGISTRY/$ECR_AI_REPO:$IMAGE_TAG
+# AI Service image is managed separately for the k3s cluster.
+# Skipping build here to save disk space and time.
+
 
     - name: Copy config files to EC2
       uses: appleboy/scp-action@v0.1.4
