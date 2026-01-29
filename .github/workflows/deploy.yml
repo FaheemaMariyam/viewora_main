@@ -39,12 +39,12 @@ jobs:
 
 # AI Service image is managed separately for the k3s cluster.
     - name: Create local Firebase credentials file
+      env:
+        FIREBASE_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
       run: |
-        cat << 'EOF' > ./firebase.json
-        ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
-        EOF
+        python3 -c "import os; f = open('firebase.json', 'w'); f.write(os.environ.get('FIREBASE_JSON', '').strip()); f.close()"
         # Verify JSON is valid before proceeding
-        python3 -c "import json; json.load(open('./firebase.json'))" || (echo "Invalid JSON in Secret!" && exit 1)
+        python3 -c "import json; json.load(open('firebase.json'))" || (echo "ERROR: The FIREBASE_SERVICE_ACCOUNT_JSON secret is not valid JSON! Please check the content in GitHub Secrets." && exit 1)
 
     - name: Prepare EC2 directory
       uses: appleboy/ssh-action@v0.1.10
