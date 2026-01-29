@@ -83,6 +83,11 @@ jobs:
 
           # Create .env file from secret
           echo "${{ secrets.PROD_ENV_FILE }}" > .env
+
+          # Create Firebase Credentials from secret
+          mkdir -p /home/ubuntu/viewora/firebase
+          echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}' > /home/ubuntu/viewora/firebase/firebase.json
+          chmod 600 /home/ubuntu/viewora/firebase/firebase.json
           
           # Stop old containers first so images are no longer "in use"
           docker-compose -f docker-compose.prod.yml down || true
