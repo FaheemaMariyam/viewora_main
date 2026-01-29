@@ -57,6 +57,7 @@ jobs:
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         envs: AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_REGION
+        command_timeout: 30m
         script: |
           # Ensure AWS CLI v2 is installed (Official v2 installer)
           if ! command -v aws &> /dev/null; then
