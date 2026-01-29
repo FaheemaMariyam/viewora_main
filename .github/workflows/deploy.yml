@@ -41,6 +41,16 @@ jobs:
 # Skipping build here to save disk space and time.
 
 
+    - name: Prepare EC2 directory
+      uses: appleboy/ssh-action@v0.1.10
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          mkdir -p /home/ubuntu/viewora
+          sudo chown -R ubuntu:ubuntu /home/ubuntu/viewora
+
     - name: Copy config files to EC2
       uses: appleboy/scp-action@v0.1.4
       with:
@@ -49,6 +59,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         source: "docker-compose.prod.yml,Caddyfile"
         target: "/home/ubuntu/viewora"
+        timeout: 10m
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.10
