@@ -124,11 +124,24 @@ jobs:
           echo "Pruning Docker system..."
           docker system prune -f
           
-          # Pull and Start
-          echo "Starting new containers..."
+          # Pull and Start IN STAGES (to prevent RAM spike/OOM 137)
+          echo "Starting new containers in stages..."
           export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
           export AWS_REGION=${{ env.AWS_REGION }}
-          docker-compose -f docker-compose.prod.yml up -d
-
-          # Collect static files for the UI
+          
+          echo "Stage 1: DB and Redis"
+          docker-compose -f docker-compose.prod.yml up -d postgres redis
+          sleep 10
+          
+          echo "Stage 2: Backend"
+          docker-compose -f docker-compose.prod.yml up -d backend
+          sleep 15
+          
+          # Run collectstatic while RAM is still okay
+          echo "Stage 3: Collectstatic"
           docker-compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput
+          
+          echo "Stage 4: Caddy and Workers"
+          docker-compose -f docker-compose.prod.yml up -d caddy celery celery_beat
+          
+          echo "Deployment successful!"
