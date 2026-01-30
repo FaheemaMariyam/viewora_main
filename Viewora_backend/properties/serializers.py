@@ -76,8 +76,8 @@ class PropertyListSerializer(serializers.ModelSerializer):
     def get_cover_image(self, obj):
         image = obj.images.first()
         if image:
-            request = self.context.get("request")
-            return request.build_absolute_uri(image.image.url)
+            # S3 storage already returns full URL, no need for build_absolute_uri
+            return image.image.url
         return None
 
 
@@ -89,8 +89,8 @@ class PropertyImageSerializer(serializers.ModelSerializer):
         fields = ["id", "image"]
 
     def get_image(self, obj):
-        request = self.context.get("request")
-        return request.build_absolute_uri(obj.image.url)
+        # S3 storage already returns full URL, no need for build_absolute_uri
+        return obj.image.url
 
 
 class PropertyDetailSerializer(serializers.ModelSerializer):
@@ -138,8 +138,8 @@ class SellerPropertyListSerializer(serializers.ModelSerializer):
         if not image:
             return None
 
-        request = self.context.get("request")
-        return request.build_absolute_uri(image.image.url)
+        # S3 storage already returns full URL, no need for build_absolute_uri
+        return image.image.url
 
 
 class PropertyUpdateSerializer(serializers.ModelSerializer):
