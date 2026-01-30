@@ -53,6 +53,8 @@ jobs:
         host: ${{ secrets.EC2_HOST }}
         username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
+        timeout: 30s
+        command_timeout: 5m
         script: |
           mkdir -p /home/ubuntu/viewora/firebase
           sudo chown -R ubuntu:ubuntu /home/ubuntu/viewora
@@ -65,7 +67,7 @@ jobs:
         key: ${{ secrets.EC2_SSH_KEY }}
         source: "docker-compose.prod.yml,Caddyfile,firebase.json"
         target: "/home/ubuntu/viewora"
-        timeout: 20m
+        timeout: 5m
 
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v0.1.10
