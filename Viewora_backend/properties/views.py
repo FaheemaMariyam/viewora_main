@@ -40,9 +40,29 @@ class PropertyCreateView(APIView):
         },
     )
     def post(self, request):
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        logger.info(f"=== Property Creation Request ===")
+        logger.info(f"User: {request.user}")
+        logger.info(f"Content-Type: {request.content_type}")
+        logger.info(f"Request data keys: {list(request.data.keys())}")
+        logger.info(f"Request FILES keys: {list(request.FILES.keys())}")
+        logger.info(f"Number of files in request.FILES: {len(request.FILES)}")
+        
+        # Log each file
+        for key in request.FILES.keys():
+            files = request.FILES.getlist(key)
+            logger.info(f"Key '{key}' has {len(files)} file(s)")
+            for i, f in enumerate(files):
+                logger.info(f"  File {i}: {f.name}, size: {f.size} bytes")
+        
         serializer = PropertyCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(seller=request.user)
+        property_obj = serializer.save(seller=request.user)
+        
+        logger.info(f"Property {property_obj.id} created with {property_obj.images.count()} images")
+        
         return Response(serializer.data, status=201)
 
 
