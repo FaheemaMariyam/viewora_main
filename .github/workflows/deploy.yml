@@ -120,9 +120,10 @@ jobs:
           echo "Stopping old containers..."
           docker-compose -f docker-compose.prod.yml down || true
           
-          # Clean up
-          echo "Pruning Docker system..."
-          docker system prune -f
+          # Clean up AGGRESSIVELY (to fix 'no space left on device')
+          echo "Cleaning up disk space..."
+          docker system prune -af --volumes
+          df -h
           
           # Pull and Start IN STAGES (to prevent RAM spike/OOM 137)
           echo "Pulling latest images from ECR..."
