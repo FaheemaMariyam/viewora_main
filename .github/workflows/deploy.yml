@@ -79,18 +79,23 @@ jobs:
         command_timeout: 30m
         debug: true
         script: |
+          set -e
           cd /home/ubuntu/viewora
+          echo "Starting Deploy to EC2..."
 
-          # Move firebase.json to correct location if needed (if strip_components handled it differently)
+          # Move firebase.json to correct location
           mkdir -p firebase
-          [ -f firebase.json ] && mv firebase.json firebase/firebase.json || true
+          if [ -f firebase.json ]; then
+            mv firebase.json firebase/firebase.json
+            echo "Firebase JSON moved successfully."
+          fi
 
           # Ensure AWS CLI v2 is installed
           if ! command -v aws &> /dev/null; then
             echo "Installing AWS CLI v2..."
-            sudo apt-get update -y && sudo apt-get install -y unzip curl
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip -o awscliv2.zip && sudo ./aws/install --update && rm -rf aws awscliv2.zip
+            sudo apt-get update -qq && sudo apt-get install -y -qq unzip curl
+            curl -s "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip -q -o awscliv2.zip && sudo ./aws/install --update && rm -rf aws awscliv2.zip
           fi
 
           # Setup AWS Credentials
@@ -99,19 +104,28 @@ jobs:
           export AWS_DEFAULT_REGION=${{ env.AWS_REGION }}
 
           # Login to ECR
+          echo "Logging into Amazon ECR..."
           aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${{ steps.login-ecr.outputs.registry }}
           
-          # Create .env file
-          echo "${{ secrets.PROD_ENV_FILE }}" > .env
+          # Create .env file SAFELY (using Heredoc to prevent shell expansion)
+          echo "Creating .env file..."
+          cat << 'EOF' > .env
+          ${{ secrets.PROD_ENV_FILE }}
+          EOF
+          
+          # Verify .env was created
+          if [ ! -s .env ]; then echo "ERROR: .env file is empty!" && exit 1; fi
 
           # Stop old containers
+          echo "Stopping old containers..."
           docker-compose -f docker-compose.prod.yml down || true
           
           # Clean up
-          docker system prune -af --volumes
-          df -h
+          echo "Pruning Docker system..."
+          docker system prune -f
           
           # Pull and Start
+          echo "Starting new containers..."
           export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
           export AWS_REGION=${{ env.AWS_REGION }}
           docker-compose -f docker-compose.prod.yml up -d
