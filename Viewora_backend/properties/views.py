@@ -50,16 +50,23 @@ class PropertyCreateView(APIView):
         logger.info(f"Request FILES keys: {list(request.FILES.keys())}")
         logger.info(f"Number of files in request.FILES: {len(request.FILES)}")
         
-        # Log each file
-        for key in request.FILES.keys():
-            files = request.FILES.getlist(key)
-            logger.info(f"Key '{key}' has {len(files)} file(s)")
-            for i, f in enumerate(files):
-                logger.info(f"  File {i}: {f.name}, size: {f.size} bytes")
+        # Extract images from request.FILES before serialization
+        images = request.FILES.getlist('images')
+        logger.info(f"Extracted {len(images)} images from request.FILES")
         
+        # Log each file
+        for i, img in enumerate(images):
+            logger.info(f"  Image {i}: {img.name}, size: {img.size} bytes, content_type: {img.content_type}")
+        
+        # Create property without images
         serializer = PropertyCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         property_obj = serializer.save(seller=request.user)
+        
+        # Manually create PropertyImage objects
+        for img in images:
+            PropertyImage.objects.create(property=property_obj, image=img)
+            logger.info(f"Created PropertyImage for {img.name}")
         
         logger.info(f"Property {property_obj.id} created with {property_obj.images.count()} images")
         

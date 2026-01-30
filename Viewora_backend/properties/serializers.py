@@ -6,10 +6,6 @@ from .models import Property, PropertyImage
 
 
 class PropertyCreateSerializer(serializers.ModelSerializer):
-    images = serializers.ListField(
-        child=serializers.ImageField(), write_only=True, required=False
-    )
-
     class Meta:
         model = Property
         exclude = (
@@ -23,15 +19,10 @@ class PropertyCreateSerializer(serializers.ModelSerializer):
         )
 
     def create(self, validated_data):
-        images = validated_data.pop("images", [])
-
+        # Images are now handled in the view
         property_obj = Property.objects.create(
             **validated_data, status="published", is_active=True
         )
-
-        for img in images:
-            PropertyImage.objects.create(property=property_obj, image=img)
-
         return property_obj
 
 
