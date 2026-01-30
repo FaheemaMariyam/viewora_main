@@ -135,13 +135,14 @@ jobs:
           
           echo "Stage 2: Backend"
           docker-compose -f docker-compose.prod.yml up -d backend
-          sleep 15
+          sleep 20
           
-          # Run collectstatic while RAM is still okay
+          # Run collectstatic via 'run' (Safer than 'exec' for tasks)
           echo "Stage 3: Collectstatic"
-          docker-compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput
+          docker-compose -f docker-compose.prod.yml run --rm backend python manage.py collectstatic --noinput
           
           echo "Stage 4: Caddy and Workers"
           docker-compose -f docker-compose.prod.yml up -d caddy celery celery_beat
           
           echo "Deployment successful!"
+          docker-compose -f docker-compose.prod.yml ps
