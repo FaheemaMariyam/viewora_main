@@ -31,6 +31,7 @@ firebase-admin
 google-auth
 boto3
 gunicorn>=21.2.0
+django-storages
 
 
 
