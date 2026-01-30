@@ -61,6 +61,8 @@ INSTALLED_APPS = [
     "interests.apps.InterestsConfig",
     "corsheaders",  # allow frontend access
     "channels",
+    "chat",
+    "django_celery_beat",
     "notifications",
     "ai_gateway",
     "storages",
