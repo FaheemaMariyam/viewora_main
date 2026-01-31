@@ -43,9 +43,7 @@ services:
       - redis_data:/data
 
   backend:
-    build:
-      context: ./Viewora_backend
-      dockerfile: Dockerfile
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
     container_name: viewora_backend
     restart: always
     command: gunicorn viewora_project.wsgi:application --bind 0.0.0.0:8000 --workers 2 --threads 4 --worker-class gthread
@@ -62,9 +60,7 @@ services:
       - ./firebase/firebase.json:/app/firebase/firebase.json:ro
 
   celery:
-    build:
-      context: ./Viewora_backend
-      dockerfile: Dockerfile
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
     container_name: viewora_celery
     restart: always
     command: celery -A viewora_project worker -l info --concurrency 1
@@ -78,9 +74,7 @@ services:
       - ./firebase/firebase.json:/app/firebase/firebase.json:ro
 
   celery_beat:
-    build:
-      context: ./Viewora_backend
-      dockerfile: Dockerfile
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
     container_name: viewora_celery_beat
     restart: always
     command: celery -A viewora_project beat -l info
@@ -94,7 +88,6 @@ services:
 
 # AI Service is hosted separately on k3s for auto-scaling.
 # Removed from this EC2 to save disk space.
-
 
 volumes:
   postgres_data:

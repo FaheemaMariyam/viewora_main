@@ -126,12 +126,13 @@ jobs:
           df -h
           
           # Pull and Start IN STAGES (to prevent RAM spike/OOM 137)
+          export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
+          export AWS_REGION=${{ env.AWS_REGION }}
+          
           echo "Pulling latest images from ECR..."
           docker-compose -f docker-compose.prod.yml pull
           
           echo "Starting new containers in stages..."
-          export AWS_ACCOUNT_ID=${{ secrets.AWS_ACCOUNT_ID }}
-          export AWS_REGION=${{ env.AWS_REGION }}
           
           echo "Stage 1: DB and Redis"
           docker-compose -f docker-compose.prod.yml up -d postgres redis
