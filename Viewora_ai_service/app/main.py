@@ -25,8 +25,9 @@ load_dotenv()
 
 app = FastAPI(title="Viewora AI Service")
 
-# This will hold our vector store
+# This will hold our vector store and diagnostic info
 app.state.vector_store = None
+app.state.last_error = "None - Indexing not started"
 
 def rebuild_index():
     """
@@ -76,14 +77,17 @@ def rebuild_index():
             docs = [property_to_document(p) for p in properties]
             embeddings = get_embeddings()
             app.state.vector_store = create_vector_store(docs, embeddings)
+            app.state.last_error = "None - Indexing successful"
             print(" AI Index is currently SYNCED and READY.")
             return len(properties)
         else:
             print(" No properties found. AI context cleared.")
             app.state.vector_store = None
+            app.state.last_error = "None - Zero properties found in DB"
             return 0
 
     except Exception as e:
+        app.state.last_error = f"REBUILD ERROR: {str(e)}"
         print(f"REBUILD ERROR: {e}")
         raise e
 
@@ -105,7 +109,11 @@ def sync_data():
 
 @app.get("/health")
 def health():
-    return {"status": "up", "rag_ready": app.state.vector_store is not None}
+    return {
+        "status": "up", 
+        "rag_ready": app.state.vector_store is not None,
+        "last_error": app.state.last_error
+    }
 
 # Register the AI route
 app.include_router(area_router, prefix="/ai")

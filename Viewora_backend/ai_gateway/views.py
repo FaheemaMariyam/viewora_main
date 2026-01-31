@@ -25,10 +25,14 @@ class AreaInsightsGateway(APIView):
             # Check if upstream returned an error
             if response.status_code != 200:
                 print(f"AI Service Error: {response.text}")
-                return Response(
-                    {"error": "AI Service returned an error"},
-                    status=response.status_code,
-                )
+                try:
+                    error_data = response.json()
+                    return Response(error_data, status=response.status_code)
+                except:
+                    return Response(
+                        {"error": f"AI Service error ({response.status_code})", "detail": response.text},
+                        status=response.status_code,
+                    )
 
             return Response(response.json(), status=response.status_code)
 
