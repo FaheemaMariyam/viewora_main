@@ -43,7 +43,7 @@ DEBUG = os.getenv("DEBUG") == "true"
 _raw_hosts = os.getenv("ALLOWED_HOSTS", "").split(",")
 ALLOWED_HOSTS = [h.strip() for h in _raw_hosts if h.strip()]
 # Core domains that MUST always work
-_core_hosts = ["localhost", "127.0.0.1", "viewora.duckdns.org", "backend", "viewora_backend"]
+_core_hosts = ["localhost", "127.0.0.1", "viewora.duckdns.org", "viewora-pi.vercel.app", "backend", "viewora_backend"]
 for h in _core_hosts:
     if h not in ALLOWED_HOSTS:
         ALLOWED_HOSTS.append(h)
