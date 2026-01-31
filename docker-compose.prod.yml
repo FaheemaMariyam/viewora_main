@@ -46,7 +46,7 @@ services:
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
     container_name: viewora_backend
     restart: always
-    command: uvicorn viewora_project.asgi:application --host 0.0.0.0 --port 8000 --proxy-headers
+    command: gunicorn viewora_project.asgi:application --bind 0.0.0.0:8000 --workers 2 --worker-class uvicorn.workers.UvicornWorker
     depends_on:
       postgres:
         condition: service_healthy

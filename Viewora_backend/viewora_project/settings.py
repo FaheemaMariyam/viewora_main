@@ -14,6 +14,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 load_dotenv(BASE_DIR.parent / ".env")
 
+# Safe environment int parser (prevents crash on empty strings in .env)
+def get_env_int(var_name, default):
+    val = os.getenv(var_name)
+    if not val or val.strip() == "":
+        return default
+    try:
+        return int(val)
+    except (ValueError, TypeError):
+        return default
+
 
 USE_REDIS = os.getenv("USE_REDIS") == "true"
 
@@ -23,7 +33,7 @@ if USE_REDIS:
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
             "CONFIG": {
-                "hosts": [(os.getenv("REDIS_HOST", "redis"), int(os.getenv("REDIS_PORT", 6379)))],
+                "hosts": [(os.getenv("REDIS_HOST", "redis"), get_env_int("REDIS_PORT", 6379))],
             },
         },
     }
@@ -157,7 +167,7 @@ DATABASES = {
         "USER": os.getenv("DB_USER"),
         "PASSWORD": os.getenv("DB_PASSWORD"),
         "HOST": os.getenv("DB_HOST"),
-        "PORT": os.getenv("DB_PORT"),
+        "PORT": get_env_int("DB_PORT", 5432),
         "CONN_MAX_AGE": 0,   # REQUIRED for Supabase pooler
         "OPTIONS": {
             "sslmode": "require",
@@ -179,7 +189,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 
 EMAIL_HOST = os.getenv("EMAIL_HOST", "")
-EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
+EMAIL_PORT = get_env_int("EMAIL_PORT", 587)
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 EMAIL_USE_TLS = True
