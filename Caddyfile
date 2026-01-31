@@ -1,5 +1,7 @@
-:80 {
-    # Serve static and media files directly from the shared volumes
+viewora.duckdns.org {
+    # Provide an email for SSL certificate notifications (optional but good practice)
+    tls viewora123@gmail.com
+    # Serve static and media files directly
     handle_path /static/* {
         root * /app/staticfiles
         file_server
@@ -9,7 +11,6 @@
         root * /app/media
         file_server
     }
-
     # Reverse proxy everything else to Django
     reverse_proxy * backend:8000
 }
