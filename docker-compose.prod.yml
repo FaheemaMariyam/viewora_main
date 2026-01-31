@@ -75,7 +75,9 @@ services:
       - ./firebase/firebase.json:/app/firebase/firebase.json:ro
 
   celery_beat:
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
+    build:
+      context: ./Viewora_backend
+      dockerfile: Dockerfile
     container_name: viewora_celery_beat
     restart: always
     command: celery -A viewora_project beat -l info
