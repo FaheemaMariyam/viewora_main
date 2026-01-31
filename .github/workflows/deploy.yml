@@ -118,7 +118,8 @@ jobs:
 
           # Stop old containers
           echo "Stopping old containers..."
-          docker-compose -f docker-compose.prod.yml down || true
+          docker-compose -f docker-compose.prod.yml down --remove-orphans || true
+          docker rm -f viewora_redis viewora_postgres viewora_backend viewora_celery viewora_celery_beat viewora_project_caddy_1 || true
           
           # Clean up AGGRESSIVELY (to fix 'no space left on device')
           echo "Cleaning up disk space..."
