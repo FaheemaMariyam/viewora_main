@@ -23,7 +23,7 @@ if USE_REDIS:
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
             "CONFIG": {
-                "hosts": [(os.getenv("REDIS_HOST"), int(os.getenv("REDIS_PORT")))],
+                "hosts": [(os.getenv("REDIS_HOST", "redis"), int(os.getenv("REDIS_PORT", 6379)))],
             },
         },
     }
@@ -43,7 +43,7 @@ DEBUG = os.getenv("DEBUG") == "true"
 _raw_hosts = os.getenv("ALLOWED_HOSTS", "").split(",")
 ALLOWED_HOSTS = [h.strip() for h in _raw_hosts if h.strip()]
 # Core domains that MUST always work
-_core_hosts = ["*", "localhost", "127.0.0.1", "viewora.duckdns.org", "viewora-pi.vercel.app", "backend", "viewora_backend"]
+_core_hosts = ["localhost", "127.0.0.1", "viewora.duckdns.org", "viewora-pi.vercel.app", "backend", "viewora_backend"]
 for h in _core_hosts:
     if h not in ALLOWED_HOSTS:
         ALLOWED_HOSTS.append(h)
@@ -101,7 +101,7 @@ MIDDLEWARE = [
 # frontend to Django backend, Allows cookies (JWT) to be sent
 
 # Bulletproof CORS Origins
-CORS_ALLOW_ALL_ORIGINS = True  # Debugging: Allow all for a moment
+CORS_ALLOW_ALL_ORIGINS = False
 _raw_cors = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
 CORS_ALLOWED_ORIGINS = [h.strip() for h in _raw_cors if h.strip()]
 _core_origins = ["http://localhost:5173", "https://viewora-pi.vercel.app", "https://viewora.duckdns.org"]

@@ -23,6 +23,7 @@ uritemplate==4.2.0
 channels
 channels-redis
 daphne>=4.0
+uvicorn[standard]
 drf-yasg>=1.21.0
 twilio>=9.0.0
 celery>=5.3
