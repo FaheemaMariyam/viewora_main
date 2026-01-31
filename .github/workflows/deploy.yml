@@ -116,10 +116,15 @@ jobs:
           # Verify .env was created
           if [ ! -s .env ]; then echo "ERROR: .env file is empty!" && exit 1; fi
 
-          # Stop old containers
+          # Stop old containers and free ports
           echo "Stopping old containers..."
           docker-compose -f docker-compose.prod.yml down --remove-orphans || true
-          docker rm -f viewora_redis viewora_postgres viewora_backend viewora_celery viewora_celery_beat viewora_project_caddy_1 || true
+          # Force kill anything holding the ports
+          docker ps -q --filter "publish=80" | xargs -r docker rm -f || true
+          docker ps -q --filter "publish=443" | xargs -r docker rm -f || true
+          docker ps -q --filter "publish=8000" | xargs -r docker rm -f || true
+          sudo systemctl stop nginx || true
+          sudo systemctl stop apache2 || true
           
           # Clean up AGGRESSIVELY (to fix 'no space left on device')
           echo "Cleaning up disk space..."
