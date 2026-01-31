@@ -81,7 +81,7 @@ MIDDLEWARE = [
 ]
 # frontend to Django backend, Allows cookies (JWT) to be sent
 
-CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173,https://viewora-pi.vercel.app").split(",")
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173,https://viewora-pi.vercel.app,https://viewora.duckdns.org").split(",")
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = [  # Allows JWT headers if needed,Allows JSON POST requests
@@ -89,7 +89,7 @@ CORS_ALLOW_HEADERS = [  # Allows JWT headers if needed,Allows JSON POST requests
     "content-type",
 ]
 
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:5173,https://viewora-pi.vercel.app","https://viewora.duckdns.org").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:5173,https://viewora-pi.vercel.app,https://viewora.duckdns.org").split(",")
 
 ROOT_URLCONF = "viewora_project.urls"
 
