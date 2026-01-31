@@ -45,9 +45,10 @@ export default function ChatBox({ interestId, onSocketReady }) {
 
     const connect = () => {
       // Use the configured WebSocket URL from environment
-      const wsUrl = import.meta.env.VITE_WS_BASE_URL || `ws://${window.location.hostname}:8000`;
+      const baseUrl = import.meta.env.VITE_WS_BASE_URL || `ws://${window.location.hostname}:8000`;
+      const cleanBaseUrl = baseUrl.endsWith('/ws') ? baseUrl : `${baseUrl}/ws`;
       socket = new WebSocket(
-        `${wsUrl}/ws/chat/interest/${interestId}/`
+        `${cleanBaseUrl}/chat/interest/${interestId}/`
       );
 
       socketRef.current = socket;
