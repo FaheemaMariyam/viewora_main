@@ -256,6 +256,15 @@ AWS_S3_SIGNATURE_VERSION = "s3v4"
 AWS_S3_FILE_OVERWRITE = False
 AWS_DEFAULT_ACL = None
 AWS_S3_VERIFY = True
+AWS_S3_ADDRESSING_STYLE = "virtual"
+
+# Essential for public access - prevents signed URLs
+AWS_QUERYSTRING_AUTH = False
+
+# Cache control for better performance
+AWS_S3_OBJECT_PARAMETERS = {
+    "CacheControl": "max-age=86400",
+}
 
 # This ensures images are served via HTTPS
 AWS_S3_CUSTOM_DOMAIN = f"{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com"
