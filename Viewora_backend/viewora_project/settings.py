@@ -25,15 +25,27 @@ def get_env_int(var_name, default):
         return default
 
 
+# Safe environment string parser
+def get_env_str(var_name, default):
+    val = os.getenv(var_name)
+    if not val or val.strip() == "":
+        return default
+    return val.strip()
+
+# Default Channel Layer (InMemory fallback for stability)
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
+
 USE_REDIS = os.getenv("USE_REDIS") == "true"
-
 if USE_REDIS:
-
     CHANNEL_LAYERS = {
         "default": {
             "BACKEND": "channels_redis.core.RedisChannelLayer",
             "CONFIG": {
-                "hosts": [(os.getenv("REDIS_HOST", "redis"), get_env_int("REDIS_PORT", 6379))],
+                "hosts": [(get_env_str("REDIS_HOST", "redis"), get_env_int("REDIS_PORT", 6379))],
             },
         },
     }

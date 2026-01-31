@@ -10,23 +10,35 @@ from .models import ChatMessage
 
 class ChatConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.user = self.scope["user"]
-        self.interest_id = self.scope["url_route"]["kwargs"]["interest_id"]
-        self.room_group_name = f"interest_{self.interest_id}"
+        try:
+            self.user = self.scope["user"]
+            self.interest_id = self.scope["url_route"]["kwargs"]["interest_id"]
+            self.room_group_name = f"interest_{self.interest_id}"
 
-        if not self.user.is_authenticated:
-            await self.close(code=4001)
-            return
+            print(f"WS ATTEMPT: User={self.user}, Interest={self.interest_id}")
 
-        allowed = await self.is_allowed_user()
-        if not allowed:
-            await self.close(code=4003)
-            return
+            if not self.user.is_authenticated:
+                print("WS REJECTED: User not authenticated")
+                await self.close(code=4001)
+                return
 
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+            allowed = await self.is_allowed_user()
+            if not allowed:
+                print(f"WS REJECTED: User {self.user} not allowed for interest {self.interest_id}")
+                await self.close(code=4003)
+                return
 
-        await self.accept()
-        print(" WS CONNECTED:", self.user)
+            if self.channel_layer:
+                await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+                print(f"WS CONNECTED: {self.user} joined {self.room_group_name}")
+                await self.accept()
+            else:
+                print("WS ERROR: Channel layer missing")
+                await self.close(code=4000)
+
+        except Exception as e:
+            print(f"WS CRITICAL ERROR: {e}")
+            await self.close(code=4000)
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(self.room_group_name, self.channel_name)
