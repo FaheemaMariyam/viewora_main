@@ -41,6 +41,7 @@ def rebuild_index():
             password=os.getenv("DB_PASSWORD", "root"),
             host=os.getenv("DB_HOST", "postgres"),
             port=os.getenv("DB_PORT", "5432"),
+            sslmode="require",
             cursor_factory=RealDictCursor
         )
         cur = conn.cursor()
