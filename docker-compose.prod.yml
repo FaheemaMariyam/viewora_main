@@ -42,10 +42,9 @@ services:
     volumes:
       - redis_data:/data
 
-  backend:
-    # IMAGE PLACEHOLDER: The CI/CD pipeline will set the correct image URI here
-    # Local dev uses 'build', Production uses 'image'
-    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
+    build:
+      context: ./Viewora_backend
+      dockerfile: Dockerfile
     container_name: viewora_backend
     restart: always
     command: gunicorn viewora_project.wsgi:application --bind 0.0.0.0:8000 --workers 2 --threads 4 --worker-class gthread
