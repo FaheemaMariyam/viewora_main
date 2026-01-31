@@ -46,7 +46,7 @@ services:
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
     container_name: viewora_backend
     restart: always
-    command: daphne -b 0.0.0.0 -p 8000 viewora_project.asgi:application
+    command: python3 -m daphne -b 0.0.0.0 -p 8000 viewora_project.asgi:application
     depends_on:
       postgres:
         condition: service_healthy
