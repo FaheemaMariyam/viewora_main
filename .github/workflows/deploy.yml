@@ -37,7 +37,13 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG ./Viewora_backend
         docker push $ECR_REGISTRY/$ECR_BACKEND_REPO:$IMAGE_TAG
 
-# AI Service image is managed separately for the k3s cluster.
+    - name: Build, tag, and push AI Service image
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: latest
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_AI_REPO:$IMAGE_TAG ./Viewora_ai_service
+        docker push $ECR_REGISTRY/$ECR_AI_REPO:$IMAGE_TAG
     - name: Create local Firebase credentials file
       env:
         FIREBASE_JSON: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_JSON }}
@@ -152,8 +158,8 @@ jobs:
           echo "Stage 3: Collectstatic"
           docker-compose -f docker-compose.prod.yml run --rm backend python manage.py collectstatic --noinput
           
-          echo "Stage 4: Caddy and Workers"
-          docker-compose -f docker-compose.prod.yml up -d caddy celery celery_beat
+          echo "Stage 4: Caddy, AI Service, and Workers"
+          docker-compose -f docker-compose.prod.yml up -d caddy ai_service celery celery_beat
           
           echo "Deployment successful!"
           docker-compose -f docker-compose.prod.yml ps

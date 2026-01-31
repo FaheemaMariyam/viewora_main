@@ -59,6 +59,16 @@ services:
       - static_data:/app/staticfiles
       - ./firebase/firebase.json:/app/firebase/firebase.json:ro
 
+  ai_service:
+    image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-ai-service:latest
+    container_name: viewora_ai_service
+    restart: always
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - .env
+
   celery:
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
     container_name: viewora_celery
