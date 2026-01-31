@@ -39,7 +39,14 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "true"
 
 
-ALLOWED_HOSTS = [h.strip() for h in os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,viewora-pi.vercel.app,viewora.duckdns.org").split(",") if h.strip()]
+# Bulletproof ALLOWED_HOSTS for DuckDNS
+_raw_hosts = os.getenv("ALLOWED_HOSTS", "").split(",")
+ALLOWED_HOSTS = [h.strip() for h in _raw_hosts if h.strip()]
+# Core domains that MUST always work
+_core_hosts = ["localhost", "127.0.0.1", "viewora.duckdns.org", "backend", "viewora_backend"]
+for h in _core_hosts:
+    if h not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(h)
 
 # Security settings for production behind Caddy
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -86,7 +93,14 @@ MIDDLEWARE = [
 ]
 # frontend to Django backend, Allows cookies (JWT) to be sent
 
-CORS_ALLOWED_ORIGINS = [h.strip() for h in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173,https://viewora-pi.vercel.app,https://viewora.duckdns.org").split(",") if h.strip()]
+# Bulletproof CORS Origins
+_raw_cors = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+CORS_ALLOWED_ORIGINS = [h.strip() for h in _raw_cors if h.strip()]
+_core_origins = ["http://localhost:5173", "https://viewora-pi.vercel.app", "https://viewora.duckdns.org"]
+for o in _core_origins:
+    if o not in CORS_ALLOWED_ORIGINS:
+        CORS_ALLOWED_ORIGINS.append(o)
+
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_ALLOW_HEADERS = [  # Allows JWT headers if needed,Allows JSON POST requests
@@ -94,7 +108,13 @@ CORS_ALLOW_HEADERS = [  # Allows JWT headers if needed,Allows JSON POST requests
     "content-type",
 ]
 
-CSRF_TRUSTED_ORIGINS = [h.strip() for h in os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:5173,https://viewora-pi.vercel.app,https://viewora.duckdns.org").split(",") if h.strip()]
+# Bulletproof CSRF Origins
+_raw_csrf = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+CSRF_TRUSTED_ORIGINS = [h.strip() for h in _raw_csrf if h.strip()]
+_core_csrf = ["http://localhost:5173", "https://viewora-pi.vercel.app", "https://viewora.duckdns.org"]
+for c in _core_csrf:
+    if c not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(c)
 
 ROOT_URLCONF = "viewora_project.urls"
 
