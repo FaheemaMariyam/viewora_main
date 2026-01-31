@@ -45,7 +45,12 @@ class AreaInsightsGateway(APIView):
         except requests.exceptions.RequestException as e:
             print(f"AI Connection Error: {e}")
             return Response(
-                {"error": "AI service unavailable"},
+                {
+                    "error": "AI service unavailable",
+                    "detail": str(e),
+                    "target_url": ai_service_url,
+                    "check": "Is the 'ai_service' container running on the server?"
+                },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
 
