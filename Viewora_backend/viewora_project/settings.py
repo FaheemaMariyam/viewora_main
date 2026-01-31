@@ -39,7 +39,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 DEBUG = os.getenv("DEBUG") == "true"
 
 
-ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,viewora-pi.vercel.app").split(",")
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost,127.0.0.1,viewora-pi.vercel.app,viewora.duckdns.org").split(",")
 
 
 # Application definition
@@ -89,7 +89,7 @@ CORS_ALLOW_HEADERS = [  # Allows JWT headers if needed,Allows JSON POST requests
     "content-type",
 ]
 
-CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:5173,https://viewora-pi.vercel.app").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:5173,https://viewora-pi.vercel.app","https://viewora.duckdns.org").split(",")
 
 ROOT_URLCONF = "viewora_project.urls"
 
