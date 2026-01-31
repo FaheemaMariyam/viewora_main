@@ -72,16 +72,16 @@ class GoogleLoginView(APIView):
             "access",
             str(refresh.access_token),
             httponly=True,
-            samesite="Lax",
-            secure=False,
+            samesite="None",
+            secure=True,
         )
 
         response.set_cookie(
             "refresh",
             str(refresh),
             httponly=True,
-            samesite="Lax",
-            secure=False,
+            samesite="None",
+            secure=True,
         )
 
         return response
