@@ -80,6 +80,8 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    volumes:
+      - ai_model_cache:/root/.cache
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
       interval: 30s
@@ -134,3 +136,4 @@ volumes:
   static_data:
   caddy_data:
   caddy_config:
+  ai_model_cache:
