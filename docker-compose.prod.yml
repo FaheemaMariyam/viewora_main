@@ -16,6 +16,8 @@ services:
       - static_data:/app/staticfiles:ro
     depends_on:
       - backend
+    networks:
+      - viewora-net
 
   postgres:
     image: postgres:15
