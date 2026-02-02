@@ -76,7 +76,7 @@ class AreaInsightsGateway(APIView):
                     "error": "AI service unavailable",
                     "detail": str(e),
                     "target_url": ai_service_url,
-                    "check": "v1.12-full-diagnostics: Is the 'aiadvisor' container running on the server?"
+                    "check": "v1.13-cloud-embeddings: Is the 'aiadvisor' container running on the server?"
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )

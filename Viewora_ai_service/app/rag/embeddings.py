@@ -10,10 +10,16 @@ These embeddings allow the system to perform semantic similarity searches (e.g.,
 """
 
 
-from langchain_community.embeddings import HuggingFaceEmbeddings
+import os
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 
 
 def get_embeddings():
-    return HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
+    """
+    Returns high-speed cloud-based embeddings using Google Gemini.
+    This replaces local torch-based embeddings to save CPU and RAM.
+    """
+    return GoogleGenerativeAIEmbeddings(
+        model="models/text-embedding-004",
+        google_api_key=os.getenv("GOOGLE_API_KEY")
     )
