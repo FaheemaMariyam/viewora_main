@@ -79,9 +79,10 @@ const AIChatBot = forwardRef((props, ref) => {
       };
       setMessages(prev => [...prev, aiMsg]);
     } catch (err) {
+      const errorMessage = err.response?.data?.error || "I'm sorry, I'm having trouble connecting to the AI service. Please try again in a moment.";
       const errorMsg = { 
         role: "assistant", 
-        content: "I'm sorry, I'm having trouble connecting to the AI service. Please try again in a moment.", 
+        content: errorMessage, 
         isError: true,
         time: new Date() 
       };
