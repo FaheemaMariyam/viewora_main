@@ -15,7 +15,7 @@ class AreaInsightsGateway(APIView):
 
     def post(self, request):
         try:
-            ai_service_url = os.getenv("AI_SERVICE_URL", "http://ai_service:8001")
+            ai_service_url = os.getenv("AI_SERVICE_URL", "http://ai-service:8001")
 
             # Increased timeout to 20s for GenAI latency
             response = requests.post(
@@ -49,7 +49,7 @@ class AreaInsightsGateway(APIView):
                     "error": "AI service unavailable",
                     "detail": str(e),
                     "target_url": ai_service_url,
-                    "check": "Is the 'ai_service' container running on the server?"
+                    "check": "Is the 'ai-service' container running on the server?"
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
@@ -93,7 +93,7 @@ class SyncAIGateway(APIView):
 
     def post(self, request):
         try:
-            ai_service_url = os.getenv("AI_SERVICE_URL", "http://ai_service:8001")
+            ai_service_url = os.getenv("AI_SERVICE_URL", "http://ai-service:8001")
             response = requests.post(f"{ai_service_url}/ai/sync", timeout=30)
 
             if response.status_code != 200:
