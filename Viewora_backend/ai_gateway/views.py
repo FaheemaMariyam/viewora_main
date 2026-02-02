@@ -29,7 +29,7 @@ class AreaInsightsGateway(APIView):
             for attempt in range(max_retries):
                 try:
                     response = requests.post(
-                        f"{ai_service_url}/ai/area-insights", json=request.data, timeout=20
+                        f"{ai_service_url}/ai/area-insights", json=request.data, timeout=60
                     )
                     break 
                 except requests.exceptions.RequestException as e:
@@ -60,7 +60,7 @@ class AreaInsightsGateway(APIView):
         except requests.exceptions.Timeout:
             print("AI Service Timeout")
             return Response(
-                {"error": "AI took too long to respond. Please try again."},
+                {"error": "AI engine is cold-starting. This usually takes 30-60s for the first run. Please try again in a moment."},
                 status=status.HTTP_504_GATEWAY_TIMEOUT,
             )
         except requests.exceptions.RequestException as e:
@@ -70,7 +70,7 @@ class AreaInsightsGateway(APIView):
                     "error": "AI service unavailable",
                     "detail": str(e),
                     "target_url": ai_service_url,
-                    "check": "v1.9-back-to-basics: Is the 'aiadvisor' container running on the server?"
+                    "check": "v1.10-long-timeout: Is the 'aiadvisor' container running on the server?"
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
