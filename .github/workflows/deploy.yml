@@ -154,9 +154,9 @@ jobs:
           docker-compose -f docker-compose.prod.yml up -d backend
           sleep 20
           
-          # Run collectstatic via 'run' (Safer than 'exec' for tasks)
+          # Run collectstatic via 'exec' (Avoids IP conflict)
           echo "Stage 3: Collectstatic"
-          docker-compose -f docker-compose.prod.yml run --rm backend python manage.py collectstatic --noinput
+          docker-compose -f docker-compose.prod.yml exec -T backend python manage.py collectstatic --noinput
           
           echo "Stage 4: Caddy, AI Service, and Workers"
           docker-compose -f docker-compose.prod.yml up -d caddy aiadvisor celery celery_beat
