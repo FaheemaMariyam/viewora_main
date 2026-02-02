@@ -49,7 +49,7 @@ class AreaInsightsGateway(APIView):
                     "error": "AI service unavailable",
                     "detail": str(e),
                     "target_url": ai_service_url,
-                    "check": "Is the 'ai-service' container running on the server?"
+                    "check": "v1.2-hyphen-net: Is the 'ai-service' container running on the server?"
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
