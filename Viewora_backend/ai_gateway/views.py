@@ -29,7 +29,7 @@ class AreaInsightsGateway(APIView):
             for attempt in range(max_retries):
                 try:
                     response = requests.post(
-                        f"{ai_service_url}/ai/area-insights", json=request.data, timeout=120
+                        f"{ai_service_url}/ai/area-insights", json=request.data, timeout=180
                     )
                     break 
                 except requests.exceptions.RequestException as e:
@@ -76,7 +76,7 @@ class AreaInsightsGateway(APIView):
                     "error": "AI service unavailable",
                     "detail": str(e),
                     "target_url": ai_service_url,
-                    "check": "v1.13-cloud-embeddings: Is the 'aiadvisor' container running on the server?"
+                    "check": "v1.14-absolute-stability: Is the 'aiadvisor' container running on the server?"
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
