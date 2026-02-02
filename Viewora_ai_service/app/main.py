@@ -8,8 +8,11 @@ It is responsible for:
 3. Orchestrating the RAG (Retrieval-Augmented Generation) indexing process.
 4. Managing the application lifecycle (startup events) and global state (Vector Store).
 """
-import threading
-from datetime import datetime
+import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from fastapi import FastAPI
+from dotenv import load_dotenv
 
 # Import components
 from app.rag.documents import property_to_document
