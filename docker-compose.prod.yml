@@ -32,7 +32,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - viewora-net
+      viewora-net:
+        ipv4_address: 172.20.0.10
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
@@ -46,7 +47,8 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - viewora-net
+      viewora-net:
+        ipv4_address: 172.20.0.20
 
   backend:
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-backend:latest
@@ -67,7 +69,12 @@ services:
       - static_data:/app/staticfiles
       - ./firebase/firebase.json:/app/firebase/firebase.json:ro
     networks:
-      - viewora-net
+      viewora-net:
+        ipv4_address: 172.20.0.30
+    environment:
+      - DB_HOST=172.20.0.10
+      - REDIS_HOST=172.20.0.20
+      - AI_SERVICE_URL=http://172.20.0.88:8001
 
   aiadvisor:
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-ai-service:latest
@@ -78,6 +85,8 @@ services:
         condition: service_healthy
     env_file:
       - .env
+    environment:
+      - DB_HOST=172.20.0.10
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8001/health || exit 1"]
       interval: 30s

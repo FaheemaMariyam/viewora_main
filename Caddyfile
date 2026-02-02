@@ -12,5 +12,5 @@ viewora.duckdns.org {
         file_server
     }
     # Reverse proxy everything else to Django
-    reverse_proxy * backend:8000
+    reverse_proxy * 172.20.0.30:8000
 }
