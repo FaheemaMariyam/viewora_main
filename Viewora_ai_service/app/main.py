@@ -13,6 +13,8 @@ import psycopg2
 from psycopg2.extras import RealDictCursor
 from fastapi import FastAPI
 from dotenv import load_dotenv
+import threading
+from datetime import datetime
 
 # Import components
 from app.rag.documents import property_to_document
