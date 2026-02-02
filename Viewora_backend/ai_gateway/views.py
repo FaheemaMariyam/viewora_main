@@ -15,13 +15,12 @@ class AreaInsightsGateway(APIView):
 
     def post(self, request):
         try:
-            ai_service_url = os.getenv("AI_SERVICE_URL", "http://aiadvisor:8001")
-            # Safety Fix: Docker internal DNS prefers simple alphanumeric names.
-            # Convert any old names to 'aiadvisor' automatically.
-            old_names = ["ai_service", "ai-service"]
+            ai_service_url = os.getenv("AI_SERVICE_URL", "http://172.20.0.88:8001")
+            # Safety Fix: DNS bypass. Converting names to static IP.
+            old_names = ["ai_service", "ai-service", "aiadvisor"]
             for old in old_names:
                 if old in ai_service_url:
-                    ai_service_url = ai_service_url.replace(old, "aiadvisor")
+                    ai_service_url = ai_service_url.replace(old, "172.20.0.88")
 
             # Increased timeout to 20s for GenAI latency
             # Added basic retry for DNS/Startup race conditions
@@ -71,7 +70,7 @@ class AreaInsightsGateway(APIView):
                     "error": "AI service unavailable",
                     "detail": str(e),
                     "target_url": ai_service_url,
-                    "check": "v1.5-final-retry: Is the 'aiadvisor' container running on the server?"
+                    "check": "v1.6-static-ip: Is the 'aiadvisor' container running on the server?"
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
@@ -115,7 +114,7 @@ class SyncAIGateway(APIView):
 
     def post(self, request):
         try:
-            ai_service_url = os.getenv("AI_SERVICE_URL", "http://aiadvisor:8001")
+            ai_service_url = os.getenv("AI_SERVICE_URL", "http://172.20.0.88:8001")
             response = requests.post(f"{ai_service_url}/ai/sync", timeout=30)
 
             if response.status_code != 200:
