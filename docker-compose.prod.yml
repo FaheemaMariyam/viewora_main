@@ -67,9 +67,9 @@ services:
     networks:
       - viewora-net
 
-  ai-service:
+  aiadvisor:
     image: ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/viewora-ai-service:latest
-    container_name: viewora_ai_service
+    container_name: aiadvisor
     restart: always
     depends_on:
       postgres:

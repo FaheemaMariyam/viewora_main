@@ -159,7 +159,7 @@ jobs:
           docker-compose -f docker-compose.prod.yml run --rm backend python manage.py collectstatic --noinput
           
           echo "Stage 4: Caddy, AI Service, and Workers"
-          docker-compose -f docker-compose.prod.yml up -d caddy ai-service celery celery_beat
+          docker-compose -f docker-compose.prod.yml up -d caddy aiadvisor celery celery_beat
           
           echo "Deployment successful!"
           docker-compose -f docker-compose.prod.yml ps

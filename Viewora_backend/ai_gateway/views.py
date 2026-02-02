@@ -15,11 +15,13 @@ class AreaInsightsGateway(APIView):
 
     def post(self, request):
         try:
-            ai_service_url = os.getenv("AI_SERVICE_URL", "http://ai-service:8001")
-            # Safety Fix: Docker internal DNS prefers hyphens over underscores.
-            # Convert 'ai_service' -> 'ai-service' if found in the env var.
-            if "ai_service" in ai_service_url:
-                ai_service_url = ai_service_url.replace("ai_service", "ai-service")
+            ai_service_url = os.getenv("AI_SERVICE_URL", "http://aiadvisor:8001")
+            # Safety Fix: Docker internal DNS prefers simple alphanumeric names.
+            # Convert any old names to 'aiadvisor' automatically.
+            old_names = ["ai_service", "ai-service"]
+            for old in old_names:
+                if old in ai_service_url:
+                    ai_service_url = ai_service_url.replace(old, "aiadvisor")
 
             # Increased timeout to 20s for GenAI latency
             response = requests.post(
@@ -53,7 +55,7 @@ class AreaInsightsGateway(APIView):
                     "error": "AI service unavailable",
                     "detail": str(e),
                     "target_url": ai_service_url,
-                    "check": "v1.3-auto-hyphen: Is the 'ai-service' container running on the server?"
+                    "check": "v1.4-final-link: Is the 'aiadvisor' container running on the server?"
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
