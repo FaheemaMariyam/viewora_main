@@ -24,9 +24,25 @@ class AreaInsightsGateway(APIView):
                     ai_service_url = ai_service_url.replace(old, "aiadvisor")
 
             # Increased timeout to 20s for GenAI latency
-            response = requests.post(
-                f"{ai_service_url}/ai/area-insights", json=request.data, timeout=20
-            )
+            # Added basic retry for DNS/Startup race conditions
+            max_retries = 3
+            last_err = None
+            for attempt in range(max_retries):
+                try:
+                    response = requests.post(
+                        f"{ai_service_url}/ai/area-insights", json=request.data, timeout=20
+                    )
+                    break 
+                except requests.exceptions.RequestException as e:
+                    last_err = e
+                    if "NameResolutionError" in str(e) or "Temporary failure in name resolution" in str(e):
+                        import time
+                        print(f"DNS Resolution Attempt {attempt+1} failed, retrying...")
+                        time.sleep(2)
+                        continue
+                    raise e
+            else:
+                raise last_err
 
             # Check if upstream returned an error
             if response.status_code != 200:
@@ -55,7 +71,7 @@ class AreaInsightsGateway(APIView):
                     "error": "AI service unavailable",
                     "detail": str(e),
                     "target_url": ai_service_url,
-                    "check": "v1.4-final-link: Is the 'aiadvisor' container running on the server?"
+                    "check": "v1.5-final-retry: Is the 'aiadvisor' container running on the server?"
                 },
                 status=status.HTTP_503_SERVICE_UNAVAILABLE,
             )
@@ -99,7 +115,7 @@ class SyncAIGateway(APIView):
 
     def post(self, request):
         try:
-            ai_service_url = os.getenv("AI_SERVICE_URL", "http://ai-service:8001")
+            ai_service_url = os.getenv("AI_SERVICE_URL", "http://aiadvisor:8001")
             response = requests.post(f"{ai_service_url}/ai/sync", timeout=30)
 
             if response.status_code != 200:

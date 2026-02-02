@@ -58,6 +58,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
+      aiadvisor:
+        condition: service_healthy
     env_file:
       - .env
     volumes:
