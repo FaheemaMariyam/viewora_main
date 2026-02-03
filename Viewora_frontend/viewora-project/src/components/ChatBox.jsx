@@ -74,13 +74,22 @@ export default function ChatBox({ interestId, onSocketReady }) {
         }
       };
 
-      socket.onclose = () => {
+      socket.onclose = (e) => {
         setConnected(false);
+        console.warn("WebSocket closed:", e.code, e.reason);
+        
+        // If it's a 403 (Forbidden) or similar auth error, don't retry infinitely
+        // Often WebSocket handshake failure results in close code 1006 or 400x depending on proxy
+        if (e.code === 4003 || e.code === 1006) {
+           console.error("Connection refused. This usually means your session has expired or the backend has rejected your origin.");
+           // We might still want to retry a few times, but let's at least slow it down or stop if it's constant
+        }
+
         if (!reconnectTimeoutRef.current) {
           reconnectTimeoutRef.current = setTimeout(() => {
             reconnectTimeoutRef.current = null;
             connect();
-          }, 1500);
+          }, 3000); // Slowed down retry to 3s
         }
       };
 

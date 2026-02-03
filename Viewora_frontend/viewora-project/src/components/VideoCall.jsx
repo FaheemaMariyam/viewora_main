@@ -139,7 +139,12 @@ export default function VideoCall({ socket, onClose }) {
 
     } catch (err) {
       console.error("Error accessing media devices:", err);
-      alert("Could not access camera/microphone. Please check permissions.");
+      // If it's NotReadableError, the camera is likely in use by another app (Chrome vs Edge)
+      const errorMsg = err.name === 'NotReadableError' 
+        ? "Camera is already in use by another application. Please close other browsers/apps using the camera." 
+        : `Could not access camera/microphone (${err.name}). Please check permissions.`;
+      
+      alert(errorMsg);
     }
   };
 
@@ -169,33 +174,48 @@ export default function VideoCall({ socket, onClose }) {
     if (ringingIntervalRef.current) return;
 
     console.log("Starting call...");
+    
+    // 1. Request media IMMEDIATELY to preserve user gesture for Edge/Mobile
+    await prepareMedia();
+    if (!localStreamRef.current) return; // Stop if user denied or hardware failed
+
     await waitForSocket();
     setIsCaller(true);
-    await prepareMedia();
 
     const pc = createPC();
-    if (localStreamRef.current) {
-       localStreamRef.current.getTracks().forEach(track => {
-         if(!pc.getSenders().find(s => s.track === track)) {
-           pc.addTrack(track, localStreamRef.current);
-         }
-       });
-    }
+    localStreamRef.current.getTracks().forEach(track => {
+       if(!pc.getSenders().find(s => s.track === track)) {
+         pc.addTrack(track, localStreamRef.current);
+       }
+    });
 
     safeSend({ type: "call_request" });
 
     ringingIntervalRef.current = setInterval(() => {
       safeSend({ type: "call_request" });
     }, 2000);
+
+    // Add a 30-second timeout for the call
+    setTimeout(() => {
+      if (!started && ringingIntervalRef.current) {
+        console.log("Call timed out - no response from recipient");
+        alert("No response. The recipient might be offline.");
+        endCall(true);
+      }
+    }, 30000);
   };
 
   /* ---------------- ACCEPT CALL ---------------- */
   const acceptCall = async () => {
     console.log("Accepting call...");
+    
+    // 1. Request media IMMEDIATELY to preserve user gesture
+    await prepareMedia();
+    if (!localStreamRef.current) return;
+
     await waitForSocket();
     setIncoming(false);
     setIsCaller(false);
-    await prepareMedia();
     safeSend({ type: "call_accept" });
   };
 

@@ -11,7 +11,7 @@ export default function Chats() {
   const [selectedInterest, setSelectedInterest] = useState(null);
   const [showVideo, setShowVideo] = useState(false);
 
-  const socketRef = useRef(null);
+  const [activeSocket, setActiveSocket] = useState(null);
 
   /* -------------------------------
      LOAD CHAT LIST (WITH POLLING)
@@ -24,14 +24,18 @@ export default function Chats() {
         ? "/api/interests/broker/interests/"
         : "/api/interests/client/interests/";
 
-    const res = await axiosInstance.get(url);
-    setInterests(res.data);
+    try {
+        const res = await axiosInstance.get(url);
+        setInterests(res.data);
 
-    const totalUnread = res.data.reduce(
-      (sum, i) => sum + (i.unread_count || 0),
-      0
-    );
-    setTotalUnread(totalUnread);
+        const totalUnread = res.data.reduce(
+          (sum, i) => sum + (i.unread_count || 0),
+          0
+        );
+        setTotalUnread(totalUnread);
+    } catch (err) {
+        console.error("Failed to load chat list:", err);
+    }
   };
 
   useEffect(() => {
@@ -47,6 +51,7 @@ export default function Chats() {
   -------------------------------- */
   const handleSelectChat = async (interest) => {
     setSelectedInterest(interest);
+    setActiveSocket(null); // Clear socket when changing chats
 
     if (interest.unread_count > 0) {
       await axiosInstance.post(
@@ -179,10 +184,10 @@ export default function Chats() {
             </div>
 
             {/* VIDEO CALL OVERLAY */}
-            {showVideo && socketRef.current && (
+            {showVideo && activeSocket && (
               <div className="absolute top-20 left-0 right-0 z-20 px-6">
                 <VideoCall
-                  socket={socketRef.current}
+                  socket={activeSocket}
                   currentUser={user.username}
                   onClose={() => setShowVideo(false)}
                 />
@@ -197,7 +202,7 @@ export default function Chats() {
             >
               <ChatBox
                 interestId={selectedInterest.id}
-                onSocketReady={(s) => (socketRef.current = s)}
+                onSocketReady={(s) => setActiveSocket(s)}
               />
             </div>
           </>
