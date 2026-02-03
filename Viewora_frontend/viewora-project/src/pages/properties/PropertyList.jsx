@@ -75,22 +75,30 @@ useEffect(() => {
   };
 
   return (
-    <div className="min-h-screen pt-12 pb-24 px-4 bg-[#FDFDFD] font-sans selection:bg-brand-primary/10">
-      <div className="max-w-7xl mx-auto relative">
+    <div className="min-h-screen relative pt-12 pb-24 px-4 bg-[#F8FAFC] font-sans selection:bg-slate-200 overflow-x-hidden">
+      
+      {/* ================= STUDIO LIGHT BACKGROUND ================= */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-5%] right-[-5%] w-[50%] h-[50%] bg-blue-100/30 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[10%] left-[-10%] w-[60%] h-[60%] bg-slate-200/20 blur-[150px] rounded-full" />
+        <div className="absolute top-[30%] left-[10%] w-[30%] h-[30%] bg-indigo-50/40 blur-[100px] rounded-full" />
+      </div>
+
+      <div className="max-w-7xl mx-auto relative z-10">
         
         {/* Header - Centered & Premium */}
-        <div className="text-center mb-16 space-y-3">
-          <h1 className="text-4xl sm:text-5xl font-black tracking-tighter text-[#1A1A1A]">
+        <div className="text-center mb-16 space-y-3 animate-in fade-in slide-in-from-top-4 duration-1000">
+          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-slate-950 font-display">
             Discover Premium Assets
           </h1>
-          <p className="text-sm font-bold text-gray-400 uppercase tracking-[0.3em]">
+          <p className="text-[17px] text-slate-500 font-medium">
             Browse our exclusive collection of verified properties
           </p>
-          <div className="w-12 h-1 bg-brand-primary mx-auto rounded-full" />
+          <div className="w-12 h-1 bg-slate-950/10 mx-auto rounded-full mt-6" />
         </div>
 
-        {/* Filters - High Z-index for select dropdowns if needed */}
-        <div className="relative z-20">
+        {/* Filters - High Z-index for select dropdowns */}
+        <div className="relative z-30 animate-in fade-in slide-in-from-bottom-4 duration-700 delay-200">
           <PropertyFilters
             filters={filters}
             setFilters={setFilters}
@@ -100,12 +108,12 @@ useEffect(() => {
 
         {/* Results */}
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-32 gap-6">
-             <div className="w-12 h-12 border-4 border-gray-100 border-t-brand-primary rounded-full animate-spin" />
-             <p className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-300">Searching global assets...</p>
+          <div className="flex flex-col items-center justify-center py-32 gap-6 animate-in fade-in duration-500">
+             <div className="w-12 h-12 border-4 border-slate-100 border-t-slate-950 rounded-full animate-spin" />
+             <p className="text-[13px] font-bold uppercase tracking-widest text-slate-400">Searching global assets...</p>
           </div>
         ) : (
-          <div className="space-y-16">
+          <div className="space-y-16 animate-in fade-in slide-in-from-bottom-4 duration-1000 delay-300">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
               {properties.length > 0 ? (
                 properties.map((property) => (
@@ -118,14 +126,19 @@ useEffect(() => {
                   />
                 ))
               ) : (
-                <div className="col-span-full py-32 text-center space-y-4">
-                   <h2 className="text-xl font-black text-gray-300">No properties found matching your criteria</h2>
-                   <button onClick={() => setFilters({search:"", city:"", property_type:"", min_price:"", max_price:""})} className="text-brand-primary font-bold hover:underline">Clear all filters</button>
+                <div className="col-span-full py-32 text-center space-y-6 bg-white/40 backdrop-blur-xl rounded-[2.5rem] border border-white">
+                   <h2 className="text-xl font-bold text-slate-400">No properties found matching your criteria</h2>
+                   <button 
+                     onClick={() => setFilters({search:"", city:"", property_type:"", min_price:"", max_price:""})} 
+                     className="text-slate-950 font-bold hover:underline underline-offset-4 decoration-2"
+                   >
+                     Clear all filters
+                   </button>
                 </div>
               )}
             </div>
 
-            <div className="pt-12 border-t border-gray-50">
+            <div className="pt-12 border-t border-slate-100">
               <Pagination
                 page={page}
                 total={count}
@@ -136,9 +149,6 @@ useEffect(() => {
             </div>
           </div>
         )}
-
-        {/* Background Accent */}
-        <div className="fixed top-[20%] right-[5%] w-[40%] h-[40%] bg-brand-primary/5 blur-[150px] rounded-full pointer-events-none -z-10" />
       </div>
     </div>
   );

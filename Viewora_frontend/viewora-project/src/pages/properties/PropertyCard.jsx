@@ -7,7 +7,7 @@ export default function PropertyCard({ property, onView }) {
   return (
     <div
       onClick={onView}
-      className="group relative bg-white rounded-[2rem] overflow-hidden border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.02)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-500 cursor-pointer flex flex-col h-full"
+      className="group relative bg-white/40 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-white shadow-[0_15px_60px_-15px_rgba(0,0,0,0.03)] hover:shadow-[0_45px_100px_-20px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-700 cursor-pointer flex flex-col h-full"
     >
       {/* IMAGE SECTION */}
       <div className="relative h-64 overflow-hidden">
@@ -15,34 +15,36 @@ export default function PropertyCard({ property, onView }) {
           <img
             src={imageUrl}
             alt={property.title}
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full bg-gray-50 flex items-center justify-center text-gray-200">
-            <Home size={48} />
+          <div className="w-full h-full bg-slate-50 flex items-center justify-center text-slate-200">
+            <div className="w-16 h-16 rounded-full border-2 border-slate-100 flex items-center justify-center">
+               <Bed size={32} />
+            </div>
           </div>
         )}
         
-        {/* Type Badge */}
-        <div className="absolute top-4 left-4">
-          <span className="px-3 py-1.5 text-[10px] font-black uppercase tracking-widest rounded-xl bg-white/90 backdrop-blur-md text-[#1A1A1A] shadow-sm border border-white/20">
+        {/* Type Badge - Glass */}
+        <div className="absolute top-5 left-5">
+          <span className="px-4 py-2 text-[11px] font-bold uppercase tracking-widest rounded-2xl bg-white/60 backdrop-blur-2xl text-slate-950 border border-white shadow-xl">
             {property.property_type}
           </span>
         </div>
 
         {/* Interested Badge Overlay */}
         {property.is_interested && (
-          <div className="absolute top-4 right-4">
-            <div className="bg-emerald-500 text-white p-1.5 rounded-full shadow-lg ring-4 ring-emerald-500/20">
-              <CheckCircle2 size={16} />
+          <div className="absolute top-5 right-5 scale-110">
+            <div className="bg-white text-emerald-500 p-2 rounded-full shadow-2xl border border-emerald-50 shadow-emerald-500/10">
+              <CheckCircle2 size={18} />
             </div>
           </div>
         )}
 
-        {/* Price Tag Overlay */}
-        <div className="absolute bottom-4 left-4">
-          <div className="bg-[#1A1A1A]/80 backdrop-blur-md text-white px-4 py-2 rounded-2xl border border-white/10 shadow-xl">
-            <span className="text-lg font-black tracking-tighter">
+        {/* Price Tag Overlay - Glass */}
+        <div className="absolute bottom-5 left-5">
+          <div className="bg-slate-950/80 backdrop-blur-xl text-white px-5 py-2.5 rounded-[1.25rem] border border-white/10 shadow-2xl">
+            <span className="text-xl font-bold tracking-tight">
               ₹{Number(property.price).toLocaleString()}
             </span>
           </div>
@@ -50,62 +52,64 @@ export default function PropertyCard({ property, onView }) {
       </div>
 
       {/* CONTENT SECTION */}
-      <div className="p-6 flex flex-col flex-grow">
-        <h3 className="text-xl font-black text-[#1A1A1A] tracking-tight truncate mb-2 group-hover:text-brand-primary transition-colors">
+      <div className="p-8 flex flex-col flex-grow">
+        <h3 className="text-[22px] font-bold text-slate-950 tracking-tight leading-tight mb-2 group-hover:text-slate-800 transition-colors">
           {property.title}
         </h3>
 
-        <div className="flex items-center text-gray-400 gap-1.5 mb-6">
-          <MapPin size={14} className="text-brand-primary" />
-          <span className="text-xs font-bold truncate uppercase tracking-wider">
+        <div className="flex items-center text-slate-400 gap-1.5 mb-8">
+          <MapPin size={14} className="text-slate-300" />
+          <span className="text-[13px] font-medium truncate">
             {property.locality}, {property.city}
           </span>
         </div>
 
         {/* Metadata Grid */}
-        <div className="grid grid-cols-3 gap-4 mb-6 py-4 border-y border-gray-50">
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-[#1A1A1A]">
+        <div className="grid grid-cols-3 gap-2 mb-8 py-6 border-y border-slate-100/50">
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="w-10 h-10 rounded-full bg-slate-50/50 flex items-center justify-center text-slate-950 shadow-sm border border-white">
               <Bed size={16} />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-tighter text-gray-400">
+            <span className="text-[11px] font-bold text-slate-950">
               {property.bedrooms ?? 0} Beds
             </span>
           </div>
-          <div className="flex flex-col items-center gap-1 border-x border-gray-50 px-2">
-            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-[#1A1A1A]">
+          <div className="flex flex-col items-center gap-1.5 border-x border-slate-100/50">
+            <div className="w-10 h-10 rounded-full bg-slate-50/50 flex items-center justify-center text-slate-950 shadow-sm border border-white">
               <Bath size={16} />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-tighter text-gray-400">
+            <span className="text-[11px] font-bold text-slate-950">
               {property.bathrooms ?? 0} Baths
             </span>
           </div>
-          <div className="flex flex-col items-center gap-1">
-            <div className="w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-[#1A1A1A]">
+          <div className="flex flex-col items-center gap-1.5">
+            <div className="w-10 h-10 rounded-full bg-slate-50/50 flex items-center justify-center text-slate-950 shadow-sm border border-white">
               <Move size={16} />
             </div>
-            <span className="text-[10px] font-black uppercase tracking-tighter text-gray-400">
+            <span className="text-[11px] font-bold text-slate-950">
               {property.area_size} {property.area_unit}
             </span>
           </div>
         </div>
 
         {/* Statistics & Call to Action */}
-        <div className="flex items-center justify-between mt-auto pt-2">
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-gray-300">
-              <Eye size={12} />
+        <div className="flex items-center justify-between mt-auto">
+          <div className="flex items-center gap-5">
+            <div className="flex items-center gap-1.5 text-[12px] font-bold text-slate-300">
+              <Eye size={14} />
               <span>{property.view_count}</span>
             </div>
-            <div className="flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-gray-300">
-              <Users size={12} />
+            <div className="flex items-center gap-1.5 text-[12px] font-bold text-slate-300">
+              <Users size={14} />
               <span>{property.interest_count}</span>
             </div>
           </div>
           
-          <div className="text-[#1A1A1A] group/btn flex items-center gap-1 text-xs font-black uppercase tracking-widest transition-all">
+          <div className="text-slate-950 group/btn flex items-center gap-1.5 text-[14px] font-bold tracking-tight transition-all">
             See Details
-            <ChevronRight size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+            <div className="w-7 h-7 rounded-full bg-slate-950 text-white flex items-center justify-center transition-transform group-hover/btn:translate-x-1">
+               <ChevronRight size={16} />
+            </div>
           </div>
         </div>
       </div>
