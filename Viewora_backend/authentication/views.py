@@ -162,7 +162,7 @@ class LoginView(APIView):
             key="access",
             value=str(refresh.access_token),
             httponly=True,
-            samesite="None",
+            samesite="Lax",
             secure=True,
         )
         # refresh token
@@ -170,7 +170,7 @@ class LoginView(APIView):
             key="refresh",
             value=str(refresh),
             httponly=True,
-            samesite="None",
+            samesite="Lax",
             secure=True,
         )
         return response
@@ -395,11 +395,11 @@ class AdminOTPVerifyView(APIView):
             "access",
             str(refresh.access_token),
             httponly=True,
-            samesite="None",
+            samesite="Lax",
             secure=True,
         )
         response.set_cookie(
-            "refresh", str(refresh), httponly=True, samesite="None", secure=True
+            "refresh", str(refresh), httponly=True, samesite="Lax", secure=True
         )
 
         return response
@@ -434,7 +434,7 @@ class RefreshTokenView(APIView):
                 key="access",
                 value=access_token,
                 httponly=True,
-                samesite="None",
+                samesite="Lax",
                 secure=True,
             )
             return response
@@ -518,14 +518,14 @@ class BrokerOTPVerifyView(APIView):
             "access",
             str(refresh.access_token),
             httponly=True,
-            samesite="None",
+            samesite="Lax",
             secure=True,
         )
         response.set_cookie(
             "refresh",
             str(refresh),
             httponly=True,
-            samesite="None",
+            samesite="Lax",
             secure=True,
         )
 

@@ -72,7 +72,7 @@ class GoogleLoginView(APIView):
             "access",
             str(refresh.access_token),
             httponly=True,
-            samesite="None",
+            samesite="Lax",
             secure=True,
         )
 
@@ -80,7 +80,7 @@ class GoogleLoginView(APIView):
             "refresh",
             str(refresh),
             httponly=True,
-            samesite="None",
+            samesite="Lax",
             secure=True,
         )
 
