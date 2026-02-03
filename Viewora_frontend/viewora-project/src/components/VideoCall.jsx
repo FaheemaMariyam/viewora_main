@@ -39,22 +39,62 @@ export default function VideoCall({ socket, onClose }) {
     });
 
   /* ---------------- CREATE PEER CONNECTION ---------------- */
+  /* ---------------- CREATE PEER CONNECTION ---------------- */
   const createPC = () => {
     if (pcRef.current) return pcRef.current;
 
+    console.log("Creating PeerConnection...");
     const pc = new RTCPeerConnection({
-      iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      iceServers: [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
+        // NOTE: For full production reliability on mobile, consider a paid TURN service.
+        // Adding a public test TURN server (OpenRelay)
+        {
+          urls: "turn:openrelay.metered.ca:80",
+          username: "openrelayproject",
+          credential: "openrelayproject",
+        },
+        {
+          urls: "turn:openrelay.metered.ca:443",
+          username: "openrelayproject",
+          credential: "openrelayproject",
+        },
+        {
+          urls: "turn:openrelay.metered.ca:443?transport=tcp",
+          username: "openrelayproject",
+          credential: "openrelayproject",
+        }
+      ],
     });
 
     pc.onicecandidate = (e) => {
       if (e.candidate) {
+        console.log("New ICE Candidate gathered");
         safeSend({ type: "ice", data: e.candidate });
       }
     };
 
+    pc.oniceconnectionstatechange = () => {
+      console.log("ICE Connection State:", pc.iceConnectionState);
+      if (pc.iceConnectionState === "failed") {
+        console.error("ICE Connection failed. Check TURN/Network.");
+      }
+    };
+
     pc.ontrack = (e) => {
-      if (remoteVideoRef.current && e.streams[0]) {
-        remoteVideoRef.current.srcObject = e.streams[0];
+      console.log("Remote track received:", e.track.kind);
+      if (remoteVideoRef.current) {
+        if (e.streams && e.streams[0]) {
+          remoteVideoRef.current.srcObject = e.streams[0];
+        } else {
+          // Fallback for some mobile browsers
+          if (!remoteVideoRef.current.srcObject) {
+            remoteVideoRef.current.srcObject = new MediaStream([e.track]);
+          } else {
+            remoteVideoRef.current.srcObject.addTrack(e.track);
+          }
+        }
       }
     };
 
@@ -66,15 +106,20 @@ export default function VideoCall({ socket, onClose }) {
   const prepareMedia = async () => {
     if (localStreamRef.current) return;
 
+    console.log("Requesting Media Access...");
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
+        video: {
+            width: { ideal: 640 },
+            height: { ideal: 480 },
+            frameRate: { max: 30 }
+        },
         audio: true,
       });
 
+      console.log("Media Access Granted");
       localStreamRef.current = stream;
 
-      // Sync initial state with track status
       setIsMuted(!stream.getAudioTracks()[0]?.enabled);
       setIsVideoOff(!stream.getVideoTracks()[0]?.enabled);
 
@@ -82,12 +127,11 @@ export default function VideoCall({ socket, onClose }) {
         localVideoRef.current.srcObject = stream;
       }
 
-      /* If a call is already established/reconnecting, add tracks */
+      /* Attach tracks if PC already exists */
       if (pcRef.current) {
          const pc = pcRef.current;
-         const senders = pc.getSenders();
          stream.getTracks().forEach((track) => {
-            if (!senders.find((s) => s.track === track)) {
+            if (!pc.getSenders().find((s) => s.track === track)) {
               pc.addTrack(track, stream);
             }
          });
@@ -95,7 +139,7 @@ export default function VideoCall({ socket, onClose }) {
 
     } catch (err) {
       console.error("Error accessing media devices:", err);
-      // Handle permission errors gracefully here if needed
+      alert("Could not access camera/microphone. Please check permissions.");
     }
   };
 
@@ -122,17 +166,19 @@ export default function VideoCall({ socket, onClose }) {
 
   /* ---------------- START CALL ---------------- */
   const startCall = async () => {
-    if (ringingIntervalRef.current) return; // 🚫 already ringing
+    if (ringingIntervalRef.current) return;
 
+    console.log("Starting call...");
     await waitForSocket();
     setIsCaller(true);
     await prepareMedia();
 
-    // Add tracks to PC if not already done in prepareMedia (for safety)
     const pc = createPC();
     if (localStreamRef.current) {
        localStreamRef.current.getTracks().forEach(track => {
-         pc.addTrack(track, localStreamRef.current);
+         if(!pc.getSenders().find(s => s.track === track)) {
+           pc.addTrack(track, localStreamRef.current);
+         }
        });
     }
 
@@ -145,6 +191,7 @@ export default function VideoCall({ socket, onClose }) {
 
   /* ---------------- ACCEPT CALL ---------------- */
   const acceptCall = async () => {
+    console.log("Accepting call...");
     await waitForSocket();
     setIncoming(false);
     setIsCaller(false);
@@ -164,18 +211,17 @@ export default function VideoCall({ socket, onClose }) {
       }
 
       if (msg.type === "call_accept" && isCaller && !started) {
+        console.log("Call accepted by remote, sending offer...");
         if (ringingIntervalRef.current) {
           clearInterval(ringingIntervalRef.current);
           ringingIntervalRef.current = null;
         }
         
-        await prepareMedia();
         const pc = createPC();
+        await prepareMedia();
         
-        // Add tracks before offer
         if (localStreamRef.current) {
             localStreamRef.current.getTracks().forEach(track => {
-                // Check if already added to avoid duplication error (though addTrack usually assumes new sender)
                 if(!pc.getSenders().find(s => s.track === track)) {
                    pc.addTrack(track, localStreamRef.current);
                 }
@@ -187,18 +233,20 @@ export default function VideoCall({ socket, onClose }) {
             offerToReceiveVideo: true
         });
         await pc.setLocalDescription(offer);
+        console.log("Local description (offer) set");
 
         safeSend({ type: "offer", data: offer });
         setStarted(true);
       }
 
       if (msg.type === "offer") {
+        console.log("Offer received, preparing answer...");
         await prepareMedia();
         const pc = createPC();
 
-        await pc.setRemoteDescription(msg.data);
+        await pc.setRemoteDescription(new RTCSessionDescription(msg.data));
+        console.log("Remote description (offer) set");
 
-        // Add tracks before answer
          if (localStreamRef.current) {
             localStreamRef.current.getTracks().forEach(track => {
                 if(!pc.getSenders().find(s => s.track === track)) {
@@ -207,42 +255,61 @@ export default function VideoCall({ socket, onClose }) {
             });
         }
 
-        // Flush ICE
-        pendingIceRef.current.forEach((c) =>
-          pc.addIceCandidate(c)
-        );
-        pendingIceRef.current = [];
+        // Flush buffered ICE candidates
+        while (pendingIceRef.current.length > 0) {
+          const candidate = pendingIceRef.current.shift();
+          try {
+            await pc.addIceCandidate(candidate);
+            console.log("Buffered ICE Candidate added");
+          } catch(e) {
+            console.warn("Failed to add buffered candidate", e);
+          }
+        }
 
         const answer = await pc.createAnswer();
         await pc.setLocalDescription(answer);
+        console.log("Local description (answer) set");
 
         safeSend({ type: "answer", data: answer });
         setStarted(true);
       }
 
       if (msg.type === "answer") {
+        console.log("Answer received");
         const pc = pcRef.current;
         if (!pc) return;
 
-        await pc.setRemoteDescription(msg.data);
+        await pc.setRemoteDescription(new RTCSessionDescription(msg.data));
+        console.log("Remote description (answer) set");
 
-        // Flush ICE
-        pendingIceRef.current.forEach((c) =>
-          pc.addIceCandidate(c)
-        );
-        pendingIceRef.current = [];
+        while (pendingIceRef.current.length > 0) {
+          const candidate = pendingIceRef.current.shift();
+          try {
+             await pc.addIceCandidate(candidate);
+             console.log("Buffered ICE Candidate added");
+          } catch(e) {
+             console.warn("Failed to add buffered candidate", e);
+          }
+        }
       }
 
       if (msg.type === "ice" && msg.data) {
         const pc = createPC();
-        if (pc.remoteDescription) {
-          await pc.addIceCandidate(msg.data);
+        if (pc.remoteDescription && pc.remoteDescription.type) {
+          try {
+            await pc.addIceCandidate(new RTCIceCandidate(msg.data));
+            console.log("ICE Candidate added immediately");
+          } catch(e) {
+             console.warn("Failed to add immediate candidate", e);
+          }
         } else {
           pendingIceRef.current.push(msg.data);
+          console.log("ICE Candidate buffered (remote description not ready)");
         }
       }
 
       if (msg.type === "call_end") {
+        console.log("End call signal received");
         endCall(false);
       }
     };
