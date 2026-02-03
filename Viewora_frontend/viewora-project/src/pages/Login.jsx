@@ -63,67 +63,69 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#FDFDFD] px-4 font-sans text-[#1A1A1A]">
+    <div className="min-h-screen relative flex items-center justify-center bg-[#F8FAFC] px-4 font-sans overflow-hidden">
       
-      {/* Background Decorative Gradient */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-brand-primary/5 blur-[120px] rounded-full"></div>
-        <div className="absolute -bottom-[10%] -right-[10%] w-[40%] h-[40%] bg-brand-primary/5 blur-[120px] rounded-full"></div>
+      {/* ================= STUDIO LIGHT BACKGROUND ================= */}
+      <div className="absolute inset-0 z-0">
+        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-blue-100/40 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[0%] right-[-10%] w-[60%] h-[60%] bg-slate-200/30 blur-[150px] rounded-full" />
+        <div className="absolute top-[20%] right-[10%] w-[30%] h-[30%] bg-indigo-50/50 blur-[100px] rounded-full" />
       </div>
 
-      <div className="w-full max-w-sm relative z-10 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="w-full max-w-[420px] relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-1000">
         
-        {/* Logo Section */}
-        <div className="mb-12 text-center">
-          <div className="inline-flex items-center justify-center w-14 h-14 bg-[#1A1A1A] text-white rounded-[1.25rem] shadow-2xl shadow-black/10 mb-6 group cursor-default transition-transform hover:scale-105 duration-500">
-            <span className="text-2xl font-black italic tracking-tighter">V</span>
+        {/* ================= WHITE GLASS LOGIN CARD ================= */}
+        <div className="bg-white/80 backdrop-blur-2xl rounded-[2.5rem] p-8 sm:p-12 border border-white shadow-[0_45px_100px_-20px_rgba(0,0,0,0.06)]">
+          
+          <div className="mb-10 text-center">
+             <div className="inline-flex items-center justify-center w-16 h-16 bg-white shadow-xl shadow-slate-200/50 rounded-2xl border border-slate-100 mb-6 group hover:scale-105 transition-transform duration-500">
+                <img src="/logo.png" alt="Viewora" className="w-8 h-8 object-contain" />
+             </div>
+             <h1 className="text-3xl font-bold tracking-tight text-slate-950 font-display mb-2">Welcome Back</h1>
+             <p className="text-[17px] text-slate-500 font-medium">Elevating your property experience.</p>
           </div>
-          <h1 className="text-3xl font-black tracking-tighter mb-2">Viewora</h1>
-          <p className="text-sm font-medium text-gray-400">Premium Real Estate Management</p>
-        </div>
 
-        {error && (
-          <div className="mb-8 p-4 text-[11px] font-black uppercase tracking-widest text-rose-500 bg-rose-50 border border-rose-100 rounded-2xl text-center">
-            {error}
-          </div>
-        )}
+          {error && (
+            <div className="mb-8 p-4 text-[13px] font-bold text-red-600 bg-red-50 border border-red-100 rounded-2xl text-center">
+              {error}
+            </div>
+          )}
 
-        <div className="bg-white rounded-[2.5rem] p-8 sm:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.03)] border border-gray-100/50">
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-1">Username</label>
+              <label className="block text-[13px] font-bold text-slate-400 ml-1">Username</label>
               <div className="relative group">
-                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#1A1A1A] transition-colors" />
+                <User size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-950 transition-colors" />
                 <input
                   name="username"
                   type="text"
-                  placeholder="Enter your username"
+                  placeholder="name@example.com"
                   required
                   autoFocus
-                  className="w-full bg-gray-50/50 border border-gray-100 pl-12 pr-4 py-4 rounded-2xl focus:bg-white focus:ring-4 focus:ring-black/5 focus:border-black outline-none transition-all text-sm font-semibold placeholder:text-gray-300"
+                  className="w-full bg-white border border-slate-100 pl-12 pr-4 py-4 rounded-2xl focus:ring-4 focus:ring-slate-100 focus:border-slate-900 outline-none transition-all text-[15px] font-medium text-slate-950 placeholder:text-slate-300 shadow-sm"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-1">
-                <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Password</label>
+                <label className="block text-[13px] font-bold text-slate-400">Password</label>
                 <button 
                   type="button"
                   onClick={() => navigate("/forgot-password")}
-                  className="text-[10px] font-black uppercase tracking-widest text-brand-primary hover:underline hover:underline-offset-4"
+                  className="text-[13px] font-bold text-slate-400 hover:text-slate-950 transition-colors"
                 >
                   Forgot?
                 </button>
               </div>
               <div className="relative group">
-                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#1A1A1A] transition-colors" />
+                <Lock size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-slate-950 transition-colors" />
                 <input
                   name="password"
                   type="password"
-                  placeholder="••••••••"
+                  placeholder="Enter password"
                   required
-                  className="w-full bg-gray-50/50 border border-gray-100 pl-12 pr-4 py-4 rounded-2xl focus:bg-white focus:ring-4 focus:ring-black/5 focus:border-black outline-none transition-all text-sm font-semibold placeholder:text-gray-300"
+                  className="w-full bg-white border border-slate-100 pl-12 pr-4 py-4 rounded-2xl focus:ring-4 focus:ring-slate-100 focus:border-slate-900 outline-none transition-all text-[15px] font-medium text-slate-950 placeholder:text-slate-300 shadow-sm"
                 />
               </div>
             </div>
@@ -131,14 +133,14 @@ export default function Login() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#1A1A1A] text-white py-4 rounded-2xl text-sm font-black tracking-tight hover:bg-black hover:shadow-xl hover:shadow-black/10 active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2 group"
+              className="w-full bg-slate-950 text-white py-4 rounded-2xl text-[17px] font-bold shadow-xl shadow-slate-200 hover:bg-black hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2 mt-8 group"
             >
               {loading ? (
                 <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
               ) : (
                 <>
                   Sign In
-                  <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
+                  <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
                 </>
               )}
             </button>
@@ -146,20 +148,19 @@ export default function Login() {
 
           <div className="relative my-10">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-gray-100"></div>
+              <div className="w-full border-t border-slate-100"></div>
             </div>
-            <div className="relative flex justify-center text-[10px] font-black uppercase tracking-[0.3em]">
-              <span className="px-4 bg-white text-gray-300">or connectivity</span>
+            <div className="relative flex justify-center text-[12px] font-bold uppercase tracking-widest text-slate-300">
+              <span className="px-4 bg-white/20 backdrop-blur-md">or continue with</span>
             </div>
           </div>
 
-          <div className="w-full flex justify-center scale-[1.05] hover:opacity-90 transition-opacity">
+          <div className="w-full flex justify-center scale-[1.02]">
             <GoogleLogin
               theme="outline"
               shape="pill"
               size="large"
-              width="320px"
-              text="continue_with"
+              width="322px"
               onSuccess={async (res) => {
                 try {
                   await googleLogin(res.credential);
@@ -174,21 +175,21 @@ export default function Login() {
           </div>
         </div>
 
-        <p className="mt-10 text-center text-sm font-medium text-gray-400">
+        <p className="mt-10 text-center text-[15px] font-medium text-slate-500">
           Not a member?{" "}
           <button
             onClick={() => navigate("/signup")}
-            className="text-[#1A1A1A] font-black hover:underline hover:underline-offset-4 decoration-2"
+            className="text-slate-950 font-bold hover:underline hover:underline-offset-4 decoration-slate-300 transition-all"
           >
             Create an account
           </button>
         </p>
 
-        {/* Footer Minimal Proof */}
-        <div className="mt-16 text-center opacity-30 select-none">
-           <div className="flex items-center justify-center gap-2 text-[9px] font-black uppercase tracking-[0.4em] text-gray-400">
-             <ShieldCheck size={12} />
-             <span>End-to-End Encryption</span>
+        {/* Minimal Footer Proof */}
+        <div className="mt-12 text-center opacity-30 group cursor-default">
+           <div className="flex items-center justify-center gap-2 text-[11px] font-medium tracking-widest text-slate-400">
+             <ShieldCheck size={14} className="text-slate-400" />
+             <span>Secured Viewora Cloud Navigation</span>
            </div>
         </div>
       </div>

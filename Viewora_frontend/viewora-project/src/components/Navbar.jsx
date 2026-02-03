@@ -338,24 +338,15 @@ export default function Navbar() {
 
   return (
     <>
-      {/* ================= SMART NAVBAR (Conditional Theme) ================= */}
+      {/* ================= REFINED GLASS NAVBAR (Back to Aesthetic) ================= */}
       <div className="fixed top-0 inset-x-0 z-50 flex justify-center">
         <nav
           className={`
-            relative w-full
-            ${location.pathname === "/" 
-               ? "border-b border-white/20 shadow-sm" 
-               : "bg-black/50 backdrop-blur-xl border-b border-white/10 shadow-md"}
+            relative w-full backdrop-blur-2xl transition-all duration-500
+            border-b border-white/10 shadow-2xl
+            ${location.pathname === "/" ? "bg-black/20" : "bg-black/65"}
           `}
         >
-          {/* Glass Background - Only for Home Page */}
-          {location.pathname === "/" && (
-             <>
-               <div className="absolute inset-0 bg-white/10 backdrop-blur-md" />
-               <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent" />
-             </>
-          )}
-
           {/* Content */}
           <div className="relative h-[72px] px-6 lg:px-8 max-w-6xl mx-auto flex items-center justify-between">
             {/* ===== BRAND ===== */}
@@ -363,11 +354,11 @@ export default function Navbar() {
               onClick={() => navigate("/")}
               className="flex items-center gap-3 cursor-pointer group"
             >
-              <div className={`w-10 h-10 flex items-center justify-center rounded-xl backdrop-blur-sm shadow-sm group-hover:scale-105 transition-transform duration-300
-                  ${location.pathname === "/" ? "bg-white/20" : "bg-white/10"}`}>
+              <div className="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 backdrop-blur-md border border-white/20 shadow-sm group-hover:scale-105 transition-transform duration-300">
                  <img src="/logo.png" alt="Viewora" className="w-6 h-6 object-contain" />
               </div>
-              <span className="text-white text-xl font-bold tracking-tight font-sans drop-shadow-sm">
+              <span className={`text-xl font-bold tracking-tight font-display drop-shadow-md transition-colors duration-500
+                ${location.pathname === "/" ? "text-slate-500" : "text-white"}`}>
                 Viewora
               </span>
             </div>
@@ -445,15 +436,16 @@ export default function Navbar() {
                     onClick={() => navigate("/profile")}
                     className="
                       ml-2 flex items-center gap-2 px-3 py-1.5
-                      rounded-full bg-white/15 hover:bg-white/25
-                      border border-white/30 cursor-pointer
+                      rounded-full bg-white/10 hover:bg-white/20
+                      border border-white/20 cursor-pointer
                       transition shadow-md
                     "
                   >
-                    <div className="w-7 h-7 rounded-full bg-white/25 flex items-center justify-center">
-                      <UserIcon size={14} className="text-white" />
+                    <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                      <UserIcon size={14} className={location.pathname === "/" ? "text-slate-500" : "text-white"} />
                     </div>
-                    <span className="text-white text-sm font-medium">
+                    <span className={`text-[17px] font-medium transition-colors duration-500
+                      ${location.pathname === "/" ? "text-slate-500" : "text-white"}`}>
                       {user.first_name}
                     </span>
                   </div>
@@ -468,7 +460,8 @@ export default function Navbar() {
             {/* ===== MOBILE TOGGLE ===== */}
             <button
               onClick={() => setOpen(!open)}
-              className="lg:hidden p-2.5 rounded-xl bg-white/15 border border-white/30 text-white hover:bg-white/25 transition"
+              className={`lg:hidden p-2.5 rounded-xl bg-white/10 border border-white/30 transition-colors duration-500
+                ${location.pathname === "/" ? "text-slate-500" : "text-white"} hover:bg-white/20`}
             >
               {open ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -479,11 +472,12 @@ export default function Navbar() {
       {/* Spacer for Fixed Navbar - Only show on non-home pages */}
       {location.pathname !== "/" && <div className="h-[72px]" />}
 
-      {/* ================= MOBILE MENU (LIGHTER) ================= */}
+      {/* ================= MOBILE MENU (PERFECT GLASS) ================= */}
       {open && (
         <div className="fixed top-[72px] inset-x-0 z-40 lg:hidden px-0">
-          <div className="relative w-full border-t border-white/20">
-            <div className="absolute inset-0 bg-slate-900/95 backdrop-blur-xl" />
+          <div className="relative w-full border-t border-white/10">
+            <div className={`absolute inset-0 backdrop-blur-3xl transition-all duration-500
+              ${location.pathname === "/" ? "bg-black/40" : "bg-black/60"}`} />
 
             <div className="relative p-6 space-y-3">
               {!user ? (
@@ -537,7 +531,7 @@ export default function Navbar() {
 
                   <button
                     onClick={handleLogout}
-                    className="w-full mt-4 py-3.5 rounded-2xl bg-white/10 text-white border border-white/30 hover:bg-white/20 transition"
+                    className="w-full mt-4 py-3.5 rounded-2xl bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 transition text-[17px] font-bold"
                   >
                     Sign out
                   </button>
@@ -554,14 +548,17 @@ export default function Navbar() {
 /* ================= GLASS UI COMPONENTS ================= */
 
 function GlassNavLink({ children, onClick, active }) {
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+  
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all duration-300
+      className={`flex items-center gap-2 px-6 py-2 rounded-full text-[17px] font-semibold font-sans transition-all duration-300
         ${
           active
-            ? "bg-white text-slate-900 shadow-md transform scale-105"
-            : "text-white/90 hover:bg-white/20 hover:text-white"
+            ? "bg-white text-slate-900 shadow-xl transform scale-105"
+            : `${isHome ? "text-slate-500" : "text-white"} hover:bg-white/10 hover:text-white`
         }`}
     >
       {children}
@@ -574,10 +571,10 @@ function GlassCTA({ children, onClick }) {
     <button
       onClick={onClick}
       className="
-        ml-4 px-6 py-2.5 rounded-full text-sm font-bold
-        bg-white text-slate-900 shadow-lg
-        hover:bg-slate-50 hover:scale-105 
-        transition-all duration-300
+        ml-4 px-8 py-3 rounded-full text-[17px] font-bold font-display
+        bg-white/10 backdrop-blur-md text-white border border-white/20
+        shadow-2xl hover:bg-white/20 hover:scale-105 
+        transition-all duration-500 hover:border-white/40
       "
     >
       {children}
@@ -586,14 +583,17 @@ function GlassCTA({ children, onClick }) {
 }
 
 function GlassIconButton({ children, onClick, danger }) {
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+
   return (
     <button
       onClick={onClick}
       className={`relative p-2.5 rounded-full transition-all duration-300
         ${
           danger
-            ? "bg-white/10 text-red-200 hover:bg-red-500 hover:text-white"
-            : "bg-white/10 text-white hover:bg-white hover:text-slate-900"
+            ? "bg-white/5 text-red-400 hover:bg-red-500 hover:text-white border border-red-500/20"
+            : `bg-white/5 ${isHome ? "text-slate-500" : "text-white"} hover:bg-white/10 hover:text-white border border-white/10`
         }`}
     >
       {children}
@@ -608,10 +608,13 @@ function NotificationDot() {
 }
 
 function MobileGlassItem({ children, onClick }) {
+  const location = useLocation();
+  const isHome = location.pathname === "/";
   return (
     <button
       onClick={onClick}
-      className="w-full px-5 py-4 rounded-xl text-left text-white font-medium hover:bg-white/10 transition-all duration-300"
+      className={`w-full px-5 py-4 rounded-xl text-left font-semibold text-[17px] font-sans transition-all duration-300 hover:bg-white/10
+        ${isHome ? "text-slate-500" : "text-white"}`}
     >
       {children}
     </button>
@@ -622,7 +625,7 @@ function MobileGlassCTA({ children, onClick }) {
   return (
     <button
       onClick={onClick}
-      className="w-full px-5 py-4 mt-2 rounded-xl bg-white text-slate-900 font-bold hover:bg-gray-100 transition-all duration-300 shadow-lg"
+      className="w-full px-5 py-4 mt-2 rounded-xl bg-white/10 backdrop-blur-md text-white border border-white/20 font-bold text-[17px] font-display hover:bg-white/20 transition-all duration-300 shadow-2xl"
     >
       {children}
     </button>
