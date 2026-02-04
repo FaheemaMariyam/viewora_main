@@ -503,6 +503,8 @@ export default function Navbar() {
               ) : (
                 <>
                   <MobileGlassItem
+                    icon={Building2}
+                    active={isActive("/properties")}
                     onClick={() => {
                       navigate("/properties");
                       setOpen(false);
@@ -511,7 +513,64 @@ export default function Navbar() {
                     Properties
                   </MobileGlassItem>
 
+                  {(user.role === "seller" ||
+                    user.role === "broker" ||
+                    user.role === "admin") && (
+                    <MobileGlassItem
+                      icon={LayoutDashboard}
+                      active={isActive("/dashboard")}
+                      onClick={() => {
+                        if (user.role === "seller") navigate("/seller");
+                        if (user.role === "broker") navigate("/broker");
+                        if (user.role === "admin") navigate("/admin/dashboard");
+                        setOpen(false);
+                      }}
+                    >
+                      Dashboard
+                    </MobileGlassItem>
+                  )}
+
+                  {user.role === "client" && (
+                    <MobileGlassItem
+                      icon={Sparkles}
+                      active={isActive("/ai-advisor")}
+                      onClick={() => {
+                        navigate("/ai-advisor");
+                        setOpen(false);
+                      }}
+                    >
+                      AI Advisor
+                    </MobileGlassItem>
+                  )}
+
                   <MobileGlassItem
+                    icon={Bell}
+                    onClick={() => {
+                      navigate("/notifications");
+                      setOpen(false);
+                    }}
+                  >
+                    Notifications
+                    {totalUnread > 0 && <span className="ml-2 w-2 h-2 rounded-full bg-red-400 inline-block" />}
+                  </MobileGlassItem>
+
+                  {(user.role === "broker" || user.role === "client") && (
+                    <MobileGlassItem
+                      icon={MessageSquare}
+                      active={isActive("/chats")}
+                      onClick={() => {
+                        navigate("/chats");
+                        setOpen(false);
+                      }}
+                    >
+                      Messages
+                      {totalUnread > 0 && <span className="ml-2 w-2 h-2 rounded-full bg-red-400 inline-block" />}
+                    </MobileGlassItem>
+                  )}
+
+                  <MobileGlassItem
+                    icon={UserIcon}
+                    active={isActive("/profile")}
                     onClick={() => {
                       navigate("/profile");
                       setOpen(false);
@@ -520,19 +579,11 @@ export default function Navbar() {
                     Profile
                   </MobileGlassItem>
 
-                  <MobileGlassItem
-                    onClick={() => {
-                      navigate("/chats");
-                      setOpen(false);
-                    }}
-                  >
-                    Messages
-                  </MobileGlassItem>
-
                   <button
                     onClick={handleLogout}
-                    className="w-full mt-4 py-3.5 rounded-2xl bg-white/5 text-slate-400 border border-white/10 hover:bg-white/10 transition text-[17px] font-bold"
+                    className="w-full mt-4 flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-red-500/10 text-red-400 border border-red-500/20 hover:bg-red-500/20 transition text-[17px] font-bold"
                   >
+                    <LogOut size={18} />
                     Sign out
                   </button>
                 </>
@@ -607,15 +658,19 @@ function NotificationDot() {
   );
 }
 
-function MobileGlassItem({ children, onClick }) {
+function MobileGlassItem({ children, onClick, icon: Icon, active }) {
   const location = useLocation();
   const isHome = location.pathname === "/";
   return (
     <button
       onClick={onClick}
-      className={`w-full px-5 py-4 rounded-xl text-left font-semibold text-[17px] font-sans transition-all duration-300 hover:bg-white/10
-        ${isHome ? "text-slate-500" : "text-white"}`}
+      className={`w-full px-5 py-4 rounded-xl text-left font-semibold text-[17px] font-sans transition-all duration-300 flex items-center gap-3
+        ${active 
+          ? "bg-white text-slate-900 shadow-lg translate-x-1" 
+          : `hover:bg-white/10 ${isHome ? "text-slate-500" : "text-white"}`
+        }`}
     >
+      {Icon && <Icon size={20} className={active ? "text-slate-900" : (isHome ? "text-slate-500" : "text-white")} />}
       {children}
     </button>
   );
