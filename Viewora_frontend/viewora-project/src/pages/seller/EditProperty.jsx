@@ -17,6 +17,7 @@ import {
   UploadCloud,
   X
 } from "lucide-react";
+import { compressImages } from "../../utils/imageUtils";
 
 export default function EditProperty() {
   const { id } = useParams();
@@ -86,7 +87,8 @@ export default function EditProperty() {
       }
     });
 
-    newImages.forEach((img) => formData.append("images", img));
+    const compressedImages = await compressImages(newImages);
+    compressedImages.forEach((img) => formData.append("images", img));
 
     try {
       await updateProperty(id, formData);
@@ -313,7 +315,7 @@ export default function EditProperty() {
                         className="px-8 py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-700 text-white font-bold hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2"
                     >
                         {saving ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div> : <CheckCircle2 size={18} />}
-                        Save Changes
+                        {saving ? "Processing..." : "Save Changes"}
                     </button>
                 )}
             </div>

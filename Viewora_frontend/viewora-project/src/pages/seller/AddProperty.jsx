@@ -1,6 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { createProperty } from "../../api/sellerApi";
+import { compressImages } from "../../utils/imageUtils";
 
 export default function AddProperty() {
   const navigate = useNavigate();
@@ -48,7 +47,9 @@ export default function AddProperty() {
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => formData.append(key, value));
 
-    images.forEach((img) => formData.append("images", img));
+    // Compress images before upload
+    const compressedImages = await compressImages(images);
+    compressedImages.forEach((img) => formData.append("images", img));
 
     try {
       await createProperty(formData);
@@ -210,7 +211,7 @@ export default function AddProperty() {
                   transition-all
                 "
               >
-                {loading ? "Creating Property..." : "Create Property"}
+                {loading ? "Processing & Uploading..." : "Create Property"}
               </button>
             </div>
           </form>
