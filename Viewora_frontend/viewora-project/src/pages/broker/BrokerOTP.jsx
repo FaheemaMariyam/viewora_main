@@ -14,12 +14,12 @@ export default function BrokerOTP() {
 
   const verifyOtp = async () => {
     try {
-      await axiosInstance.post("/api/auth/broker/verify-otp/", {
+      const res = await axiosInstance.post("/api/auth/broker/verify-otp/", {
         username: state.username,
         otp,
       });
 
-      await loginUser();
+      await loginUser(res.data);
       navigate("/broker");
     } catch {
       setError("Invalid or expired OTP");

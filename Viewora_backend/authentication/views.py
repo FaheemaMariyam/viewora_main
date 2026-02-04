@@ -155,8 +155,12 @@ class LoginView(APIView):
 
         # Generate JWT tokens
         refresh = RefreshToken.for_user(user)
-        # Store tokens securely in cookies
-        response = Response({"role": profile.role})
+        # Store tokens securely in cookies AND return in body for iPhone/Safari fallback
+        response = Response({
+            "role": profile.role,
+            "access": str(refresh.access_token),
+            "refresh": str(refresh)
+        })
         # access token
         response.set_cookie(
             key="access",
@@ -389,7 +393,11 @@ class AdminOTPVerifyView(APIView):
         refresh = RefreshToken.for_user(user)
         otp_obj.delete()
 
-        response = Response({"role": "admin"})
+        response = Response({
+            "role": "admin",
+            "access": str(refresh.access_token),
+            "refresh": str(refresh)
+        })
 
         response.set_cookie(
             "access",
@@ -433,7 +441,10 @@ class RefreshTokenView(APIView):
 
             access_token = str(refresh.access_token)
 
-            response = Response({"message": "Token refreshed"})
+            response = Response({
+                "message": "Token refreshed",
+                "access": access_token
+            })
             response.set_cookie(
                 key="access",
                 value=access_token,
@@ -516,7 +527,11 @@ class BrokerOTPVerifyView(APIView):
         refresh = RefreshToken.for_user(user)
         otp_obj.delete()
 
-        response = Response({"role": "broker"})
+        response = Response({
+            "role": "broker",
+            "access": str(refresh.access_token),
+            "refresh": str(refresh)
+        })
 
         response.set_cookie(
             "access",

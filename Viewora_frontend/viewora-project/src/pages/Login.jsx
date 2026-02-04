@@ -40,7 +40,7 @@ export default function Login() {
         return;
       }
 
-      await loginUser();
+      await loginUser(res.data);
       
       const role = res.data.role; // Assuming login response returns role, otherwise fetch user profile
       
@@ -163,8 +163,8 @@ export default function Login() {
               width="322px"
               onSuccess={async (res) => {
                 try {
-                  await googleLogin(res.credential);
-                  await loginUser();
+                  const googleRes = await googleLogin(res.credential);
+                  await loginUser(googleRes.data);
                   navigate("/profile");
                 } catch {
                   setError("Google login failed");

@@ -66,7 +66,11 @@ class GoogleLoginView(APIView):
         #  Issue JWT cookies (same as normal login)
         refresh = RefreshToken.for_user(user)
 
-        response = Response({"role": "client"})
+        response = Response({
+            "role": "client",
+            "access": str(refresh.access_token),
+            "refresh": str(refresh)
+        })
 
         response.set_cookie(
             "access",

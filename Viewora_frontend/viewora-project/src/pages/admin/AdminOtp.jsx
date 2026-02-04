@@ -14,12 +14,12 @@ export default function AdminOTP() {
 
   const submitOtp = async () => {
     try {
-      await verifyAdminOtp({
+      const res = await verifyAdminOtp({
         username: state.username,
         otp,
       });
 
-      await loginUser();
+      await loginUser(res.data);
       navigate("/admin/dashboard");
     } catch {
       setError("Invalid OTP");

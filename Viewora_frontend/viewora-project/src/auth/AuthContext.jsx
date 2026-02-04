@@ -72,8 +72,12 @@ const loadNotificationUnread = async () => {
   }
 };
 
-  const loginUser = async () => {
+  const loginUser = async (tokens = null) => {
     try {
+      if (tokens && tokens.access) {
+        localStorage.setItem("access_token", tokens.access);
+        localStorage.setItem("refresh_token", tokens.refresh);
+      }
       const res = await getProfile();
       setUser(res.data);
       await loadUnread();
@@ -83,6 +87,8 @@ const loadNotificationUnread = async () => {
   };
 
   const logoutUser = () => {
+    localStorage.removeItem("access_token");
+    localStorage.removeItem("refresh_token");
     setUser(null);
     setTotalUnread(0);
   };
