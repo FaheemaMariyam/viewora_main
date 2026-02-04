@@ -34,7 +34,11 @@ axiosInstance.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const response = await axiosInstance.post("/api/auth/refresh/");
+        const refreshToken = localStorage.getItem("refresh_token");
+        const response = await axiosInstance.post("/api/auth/refresh/", {
+          refresh: refreshToken,
+        });
+
         // Save the new access token if it was returned in the body
         if (response.data && response.data.access) {
           localStorage.setItem("access_token", response.data.access);
@@ -44,7 +48,14 @@ axiosInstance.interceptors.response.use(
         // Clear tokens on persistent 401
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
-        window.location.href = "/login";
+
+        // ONLY REDIRECT IF NOT ALREADY ON LOGIN (prevents infinite reload)
+        if (
+          !window.location.pathname.includes("/login") &&
+          !window.location.pathname.includes("/signup")
+        ) {
+          window.location.href = "/login";
+        }
         return Promise.reject(refreshError);
       }
     }

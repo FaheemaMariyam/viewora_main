@@ -429,7 +429,12 @@ class RefreshTokenView(APIView):
         responses={200: "New access token issued", 401: "Invalid refresh token"},
     )
     def post(self, request):
-        refresh_token = request.COOKIES.get("refresh")
+        # 1. Try to get token from body first (for iPhone/Safari fallback)
+        refresh_token = request.data.get("refresh")
+        
+        # 2. Fallback to cookies
+        if not refresh_token:
+            refresh_token = request.COOKIES.get("refresh")
 
         if not refresh_token:
             raise AuthenticationFailed("Refresh token not found")
