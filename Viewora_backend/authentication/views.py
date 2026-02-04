@@ -162,16 +162,16 @@ class LoginView(APIView):
             key="access",
             value=str(refresh.access_token),
             httponly=True,
-            samesite="Lax",
-            secure=True,
+            samesite=settings.SESSION_COOKIE_SAMESITE,
+            secure=settings.SESSION_COOKIE_SECURE,
         )
         # refresh token
         response.set_cookie(
             key="refresh",
             value=str(refresh),
             httponly=True,
-            samesite="Lax",
-            secure=True,
+            samesite=settings.SESSION_COOKIE_SAMESITE,
+            secure=settings.SESSION_COOKIE_SECURE,
         )
         return response
 
@@ -395,11 +395,15 @@ class AdminOTPVerifyView(APIView):
             "access",
             str(refresh.access_token),
             httponly=True,
-            samesite="Lax",
-            secure=True,
+            samesite=settings.SESSION_COOKIE_SAMESITE,
+            secure=settings.SESSION_COOKIE_SECURE,
         )
         response.set_cookie(
-            "refresh", str(refresh), httponly=True, samesite="Lax", secure=True
+            "refresh",
+            str(refresh),
+            httponly=True,
+            samesite=settings.SESSION_COOKIE_SAMESITE,
+            secure=settings.SESSION_COOKIE_SECURE,
         )
 
         return response
@@ -434,8 +438,8 @@ class RefreshTokenView(APIView):
                 key="access",
                 value=access_token,
                 httponly=True,
-                samesite="Lax",
-                secure=True,
+                samesite=settings.SESSION_COOKIE_SAMESITE,
+                secure=settings.SESSION_COOKIE_SECURE,
             )
             return response
 
@@ -518,15 +522,15 @@ class BrokerOTPVerifyView(APIView):
             "access",
             str(refresh.access_token),
             httponly=True,
-            samesite="Lax",
-            secure=True,
+            samesite=settings.SESSION_COOKIE_SAMESITE,
+            secure=settings.SESSION_COOKIE_SECURE,
         )
         response.set_cookie(
             "refresh",
             str(refresh),
             httponly=True,
-            samesite="Lax",
-            secure=True,
+            samesite=settings.SESSION_COOKIE_SAMESITE,
+            secure=settings.SESSION_COOKIE_SECURE,
         )
 
         return response
