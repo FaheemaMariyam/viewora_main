@@ -99,7 +99,7 @@ export default function Login() {
                 <input
                   name="username"
                   type="text"
-                  placeholder="name@example.com"
+                  placeholder="username"
                   required
                   autoFocus
                   className="w-full bg-white border border-slate-100 pl-12 pr-4 py-4 rounded-2xl focus:ring-4 focus:ring-slate-100 focus:border-slate-900 outline-none transition-all text-[15px] font-medium text-slate-950 placeholder:text-slate-300 shadow-sm"

@@ -2,6 +2,9 @@
 export const isValidEmail = (email) =>
   /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+export const isGmail = (email) =>
+  /^[^\s@]+@gmail\.com$/.test(email);
+
 export const isValidPhone = (phone) => {
   const cleaned = phone.replace(/\s+/g, "");
 

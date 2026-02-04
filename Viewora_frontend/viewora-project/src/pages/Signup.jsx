@@ -5,6 +5,7 @@ import { signup, sendEmailOtp, verifyEmailOtp } from "../api/authApi";
 import {
   isValidPhone,
   isValidEmail,
+  isGmail,
   isStrongPassword,
 } from "../utils/validators";
 import { toast } from "react-toastify";
@@ -37,6 +38,10 @@ export default function Signup() {
     const email = document.getElementsByName("email")[0].value;
     if (!isValidEmail(email)) {
       setError("Please enter a valid email first");
+      return;
+    }
+    if (role === "broker" && !isGmail(email)) {
+      setError("Brokers must use a @gmail.com address");
       return;
     }
     setError("");
@@ -85,6 +90,10 @@ export default function Signup() {
 
     if (!isValidEmail(email)) {
       setError("Enter a valid email address");
+      return;
+    }
+    if (role === "broker" && !isGmail(email)) {
+      setError("Brokers must use a @gmail.com address");
       return;
     }
 
