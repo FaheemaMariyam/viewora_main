@@ -20,6 +20,6 @@ def get_embeddings():
     This replaces local torch-based embeddings to save CPU and RAM.
     """
     return GoogleGenerativeAIEmbeddings(
-        model="models/embedding-001",
+        model="models/gemini-embedding-001",
         google_api_key=os.getenv("GOOGLE_API_KEY")
     )
