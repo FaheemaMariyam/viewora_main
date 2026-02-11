@@ -33,20 +33,27 @@ def area_insights(request: Request, payload: AreaInsightRequest):
             content={"error": "RAG vector store not initialized"},
         )
 
-    retriever = get_retriever(vector_store)
-    docs = retriever.invoke(payload.question)
+    try:
+        retriever = get_retriever(vector_store)
+        docs = retriever.invoke(payload.question)
 
-    sources = [
-        doc.metadata
-        for doc in docs
-        if doc.metadata
-    ]
+        sources = [
+            doc.metadata
+            for doc in docs
+            if doc.metadata
+        ]
 
-    analytics = get_property_analytics(sources)
+        analytics = get_property_analytics(sources)
 
-    answer = run_rag_chain(docs, analytics, payload.question)
+        answer = run_rag_chain(docs, analytics, payload.question)
 
-    return {
-        "answer": answer,
-        "sources": [doc.metadata for doc in docs],
-    }
+        return {
+            "answer": answer,
+            "sources": [doc.metadata for doc in docs],
+        }
+    except Exception as e:
+        print(f"RAG Error: {e}")
+        return JSONResponse(
+            status_code=503,
+            content={"error": "AI Service unable to process request", "detail": str(e)},
+        )
