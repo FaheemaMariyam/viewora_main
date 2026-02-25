@@ -95,7 +95,7 @@ services:
 **Region:** `[AWS_REGION]` (e.g., `us-east-1`)
 
 **Configuration:**
-*   **Public Access:** Block Public Access settings configured to allow public read via Bucket Policy (or CloudFront).
+*   **Public Access:** Block Public Access settings configured to allow public read via Bucket Policy (or CloudFront).Used S3 presigned urls for the video uploads.
 *   **CORS Configuration:** Crucial for allowing uploads/reads from the Vercel frontend.
     ```json
     [
@@ -138,8 +138,8 @@ services:
 1.  **Samesite=None:** Configured Django settings to allow cross-site usage.
 2.  **Vercel Rewrites:** Proxying requests via Vercel makes them appear as same-origin, improving cookie acceptance.
 
-### Problem 2: S3 Video Upload Reliability
-**Issue:** Large video files failed to upload directly to EC2 due to timeouts and storage limits.
+### Problem 2: S3 Image Upload Reliability
+**Issue:** Large image files failed to upload directly to EC2 due to timeouts and storage limits.
 **Solution:**
 1.  **Direct S3 Upload:** Configured Django to stream uploads directly to S3 using `django-storages`.
 2.  **Multipart Upload:** Enabled S3 transfer acceleration (if applicable) or standard multipart uploads for stability.
